@@ -1,5 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,10 +6,34 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'; // 
 
 import HomeScreen from './Pages/HomeScreen';
 import EventsScreen from './Pages/EventsScreen';
-import ProfileScreen from './Pages/ProfileScreen';
+import SettingsScreen from './Pages/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator(); // Create a stack navigator
+
+const events = [
+  {
+    id: 1,
+    name: 'Evento 1',
+    date: '2021-10-10',
+    location: 'Via Roma 1',
+    image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
+  },
+  {
+    id: 2,
+    name: 'Evento 2',
+    date: '2021-10-11',
+    location: 'Via Roma 2',
+    image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
+  },
+  {
+    id: 3,
+    name: 'Evento 3',
+    date: '2021-10-12',
+    location: 'Via Roma 3',
+    image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
+  }
+];
 
 const TabNavigator = () => (
   <Tab.Navigator>
@@ -33,14 +56,15 @@ const TabNavigator = () => (
           <MaterialCommunityIcons name="calendar" color={color} size={size} />
         ),
       }}
+      initialParams={{ events: events }} // Pass the events array to the EventsScreen component
     />
     <Tab.Screen
-      name="Profile"
-      component={ProfileScreen}
+      name="Settings"
+      component={SettingsScreen}
       options={{
-        tabBarLabel: 'Profile',
+        tabBarLabel: 'Settings',
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="account" color={color} size={size} />
+          <MaterialCommunityIcons name='hammer-wrench' color={color} size={size} />
         ),
       }}
     />
