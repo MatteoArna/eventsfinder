@@ -6,6 +6,21 @@ import { Card, Avatar, Image, Icon } from 'react-native-elements';
 
 const Event = ({ event }) => {
 
+    const handlePress = async () => {
+        const url = event.link;
+        console.log("Indirizzo " + url);
+        // Verifica se l'URL è valido
+        if (url) {
+          // Prova ad aprire l'URL nel browser predefinito
+          const supported = await Linking.canOpenURL(url);
+          if (supported) {
+            await Linking.openURL(url);
+          } else {
+            console.error(`Impossibile aprire l'URL: ${url}`);
+          }
+        }
+      };
+
     const [isPressed, setIsPressed] = useState(false);
   
     const togglePress = () => {
@@ -38,12 +53,7 @@ const Event = ({ event }) => {
                 <Text style={styles.eventLocation}>{event.location}</Text>
                 <Text style={styles.eventPrice}>Price: {event.price} €</Text>
 
-                <TouchableOpacity
-                    onPress={() => {
-                        // Add logic to open the event link
-                        // You can use Linking or any other method to open the link
-                    }}
-                >
+                <TouchableOpacity onPress={handlePress}>
                     <Text style={styles.eventLink}>Event Link</Text>
                 </TouchableOpacity>
             </View>
@@ -88,6 +98,10 @@ const styles = StyleSheet.create({
         color: 'blue',
         marginTop: 5,
     },
+    eventLink: {
+        color: 'blue', // Colore del testo per il link
+        textDecorationLine: 'underline', // Sottolineatura del testo per il link
+      },
 });
 
 export default Event;

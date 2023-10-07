@@ -1,92 +1,98 @@
+import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { createNativeStackNavigator } from '@react-navigation/native-stack'; // Import stack navigator
+import axios from 'axios';
+import cheerio from 'cheerio';
 
 import HomeScreen from './Pages/HomeScreen';
 import EventsScreen from './Pages/EventsScreen';
 import SettingsScreen from './Pages/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator(); // Create a stack navigator
-
-const events = [
-  {
-    id: 1,
-    name: 'Evento 1',
-    date: '2023-10-7',
-    location: 'Via Roma 1',
-    image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
-    price: "10",
-    link: 'https://www.google.com',
-  },
-  {
-    id: 2,
-    name: 'Evento 2',
-    date: '2023-10-7',
-    location: 'Via Roma 2',
-    image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
-    price: "10",
-    link: 'https://www.google.com',
-  },
-  {
-    id: 3,
-    name: 'Evento 3',
-    date: '2023-10-12',
-    location: 'Via Roma 3',
-    image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
-    price: "10",
-    link: 'https://www.google.com',
+const pages = [
+  { 
+    name: "Erasmus in Prague",
+    url: "https://www.tickettailor.com/events/erasmusinprague",
   }
 ];
 
-const TabNavigator = () => (
-  <Tab.Navigator>
-    <Tab.Screen
-      name="Home"
-      component={HomeScreen}
-      options={{
-        tabBarLabel: 'Home',
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="home" color={color} size={size} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Events"
-      component={EventsScreen}
-      options={{
-        tabBarLabel: 'Events',
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="calendar" color={color} size={size} />
-        ),
-      }}
-      initialParams={{ events: events }} // Pass the events array to the EventsScreen component
-    />
-    <Tab.Screen
-      name="Settings"
-      component={SettingsScreen}
-      options={{
-        tabBarLabel: 'Settings',
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name='hammer-wrench' color={color} size={size} />
-        ),
-      }}
-    />
-  </Tab.Navigator>
-);
-
 export default function App() {
+  const [events, setEvents] = useState([]);
+
+  async function fetchWebsiteData() {
+    try {
+      const response = await axios.get(pages[0].url);
+      const $ = cheerio.load(response.data);
+      const eventElements = $('.row.event_listing');
+      const events = [];
+
+      eventElements.each((index, element) => {
+        const $event = $(element);
+        const id = index;
+        const name = $event.find('.name').text();
+        const date = $event.find('.date_and_time').text();
+        const location = $event.find('.venue').text();
+        const image = $event.find('.event_image img').attr('src');
+        const price = "0";
+        const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
+        events.push({ id, name, date, location, image, price, link });
+      });
+
+      return events;
+    } catch (error) {
+      console.error('Errore durante il web scraping:', error);
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    fetchWebsiteData()
+      .then(result => {
+        setEvents(result);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Main"
-          component={TabNavigator}
-          options={{ headerShown: false }} // Hide the stack navigator header
+      <Tab.Navigator>
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="home" color={color} size={size} />
+            ),
+          }}
         />
-      </Stack.Navigator>
+        <Tab.Screen
+          name="Events"
+          component={() => <EventsScreen events={events} />}
+          //component={EventsScreen}
+          options={{
+            tabBarLabel: 'Events',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="calendar" color={color} size={size} />
+            ),
+          }}
+          //initialParams={{ events: events }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            tabBarLabel: 'Settings',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name='hammer-wrench' color={color} size={size} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }

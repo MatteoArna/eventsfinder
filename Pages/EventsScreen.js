@@ -3,20 +3,63 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } fr
 import Event from '../Components/Event';
 import { format, isToday } from 'date-fns';
 
-const EventScreen = ({ route }) => {
-    const events = route.params?.events || [];
+function parseEventDate(dateString) {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    
+    // Estrai il giorno e il mese dalla stringa
+    const matches = dateString.match(/(\d{1,2}) (\w{3})/);
+    if (!matches) {
+      return null;
+    }
+    
+    const [, day, monthStr] = matches;
+    
+    // Mappa abbreviazioni del mese a numeri
+    const monthMap = {
+      Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+      Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+    };
+    
+    const month = monthMap[monthStr];
+    
+    // Calcola la data dell'evento
+    const eventDate = new Date(currentYear, month, day);
+    
+    // Verifica se la data è già passata
+    if (eventDate < currentDate) {
+      // Calcola la differenza in mesi tra la data attuale e l'evento
+      const monthsDiff = (currentDate.getFullYear() - eventDate.getFullYear()) * 12 +
+        currentDate.getMonth() - eventDate.getMonth();
+      
+      // Se la differenza è maggiore di 1 mese, imposta l'anno successivo
+      if (monthsDiff > 1) {
+        eventDate.setFullYear(currentYear + 1);
+      }
+    }
+    
+    // Formatta la data nel formato desiderato
+    const formattedDate = `${day}.${month + 1 < 10 ? '0' : ''}${month + 1}.${eventDate.getFullYear()}`;
+    
+    return formattedDate;
+  }
+  
+  
+
+const EventScreen = ({ events }) => {
+    //const events = route.params?.events || [];
 
     // Group events by day
     const eventsByDay = {};
     events.forEach((event) => {
-        const eventDate = new Date(event.date); // Assuming your event object has a 'date' property
-        const dayKey = format(eventDate, 'dd.MM.yyyy'); // Format day header
+        const eventDate = parseEventDate(event.date);
+        //const dayKey = format(eventDate, 'dd.MM.yyyy'); // Format day header
 
-        if (!eventsByDay[dayKey]) {
-            eventsByDay[dayKey] = [];
+        if (!eventsByDay[eventDate]) {
+            eventsByDay[eventDate] = [];
         }
 
-        eventsByDay[dayKey].push(event);
+        eventsByDay[eventDate].push(event);
     });
 
     // State for filtering starred events
