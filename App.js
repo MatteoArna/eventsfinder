@@ -15,23 +15,29 @@ const events = [
   {
     id: 1,
     name: 'Evento 1',
-    date: '2021-10-10',
+    date: '2023-10-7',
     location: 'Via Roma 1',
     image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
+    price: "10",
+    link: 'https://www.google.com',
   },
   {
     id: 2,
     name: 'Evento 2',
-    date: '2021-10-11',
+    date: '2023-10-7',
     location: 'Via Roma 2',
     image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
+    price: "10",
+    link: 'https://www.google.com',
   },
   {
     id: 3,
     name: 'Evento 3',
-    date: '2021-10-12',
+    date: '2023-10-12',
     location: 'Via Roma 3',
     image: 'https://avatars0.githubusercontent.com/u/32242596?s=460&u=1ea285743fc4b083f95d6ee0be2e7bb8dcfc676e&v=4',
+    price: "10",
+    link: 'https://www.google.com',
   }
 ];
 
