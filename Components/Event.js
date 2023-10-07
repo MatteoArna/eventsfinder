@@ -10,6 +10,7 @@ const Event = ({ event }) => {
   
     const togglePress = () => {
       setIsPressed(!isPressed);
+      event.starred = !event.starred;
     };
 
     return (
