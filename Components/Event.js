@@ -1,11 +1,26 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Avatar, Image } from 'react-native-elements';
+import { Card, Avatar, Image, Icon } from 'react-native-elements';
+
+    
 
 const Event = ({ event }) => {
 
+    const [isPressed, setIsPressed] = useState(false);
+  
+    const togglePress = () => {
+      setIsPressed(!isPressed);
+    };
+
     return (
         <Card containerStyle={styles.eventCard}>
+            <TouchableOpacity onPress={togglePress}>
+                <Icon
+                    name={isPressed ? 'star' : 'star-outline'} // Name of the star icon
+                    size={30}
+                    color={isPressed ? 'orange' : 'gray'} // Change color based on pressed state
+                />
+            </TouchableOpacity>
             <Image
                 resizeMode="cover"
                 source={{ uri: event.image }}
@@ -21,6 +36,7 @@ const Event = ({ event }) => {
                 <Text style={styles.eventName}>{event.name}</Text>
                 <Text style={styles.eventLocation}>{event.location}</Text>
                 <Text style={styles.eventPrice}>Price: {event.price} €</Text>
+
                 <TouchableOpacity
                     onPress={() => {
                         // Add logic to open the event link
