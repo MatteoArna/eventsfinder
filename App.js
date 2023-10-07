@@ -15,6 +15,14 @@ const pages = [
   { 
     name: "Erasmus in Prague",
     url: "https://www.tickettailor.com/events/erasmusinprague",
+  },
+  {
+    name: "Oh My Prague",
+    url: "https://www.tickettailor.com/events/ohmypragueparties",
+  },
+  {
+    name: "Oh My Prague - Trips",
+    url: "https://www.tickettailor.com/events/ohmyprague?fbclid=PAAaYkX_r77zY2LTaneP63d4J5uU5Kwdr0gwKRkYt6VW90cg_UEIQBIIO3shI_aem_AWYNHQD9VHFatYLDZlCzjfsfapccULlEOsgT5iQM-tFyarDRrqdszFGQuzOKGifxgh4",
   }
 ];
 
@@ -22,25 +30,30 @@ export default function App() {
   const [events, setEvents] = useState([]);
 
   async function fetchWebsiteData() {
+    var counter = 0;
     try {
-      const response = await axios.get(pages[0].url);
-      const $ = cheerio.load(response.data);
-      const eventElements = $('.row.event_listing');
-      const events = [];
-
-      eventElements.each((index, element) => {
-        const $event = $(element);
-        const id = index;
-        const name = $event.find('.name').text();
-        const date = $event.find('.date_and_time').text();
-        const location = $event.find('.venue').text();
-        const image = $event.find('.event_image img').attr('src');
-        const price = "0";
-        const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
-        events.push({ id, name, date, location, image, price, link });
-      });
-
-      return events;
+      const allEvents = []; // Creare un array separato per tutti gli eventi
+      for(var i = 0; i < pages.length; i++){
+        const response = await axios.get(pages[i].url);
+        const $ = cheerio.load(response.data);
+        const eventElements = $('.row.event_listing');
+        eventElements.each((index, element) => {
+          const $event = $(element);
+          const id = counter++;
+          const name = $event.find('.name').text();
+          const date = $event.find('.date_and_time').text();
+          const location = $event.find('.venue').text();
+          const image = $event.find('.event_image img').attr('src');
+          const soldout = $event.find('.event_details .event_cta').text();
+          console.log("Soldout?" + soldout);
+          //const price = "0";
+          const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
+          if(name != "ERASMUS CARD - OFFICIAL") {
+            allEvents.push({ id, name, date, location, image, soldout, link });
+          }
+        });
+      }
+      return allEvents; // Restituire tutti gli eventi raccolti
     } catch (error) {
       console.error('Errore durante il web scraping:', error);
       throw error;
@@ -73,14 +86,12 @@ export default function App() {
         <Tab.Screen
           name="Events"
           component={() => <EventsScreen events={events} />}
-          //component={EventsScreen}
           options={{
             tabBarLabel: 'Events',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="calendar" color={color} size={size} />
             ),
           }}
-          //initialParams={{ events: events }}
         />
         <Tab.Screen
           name="Settings"
