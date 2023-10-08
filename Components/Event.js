@@ -6,7 +6,6 @@ import { Linking } from 'react-native';
 const Event = ({ event }) => {
   const handlePress = async () => {
     const url = event.link;
-    console.log("Indirizzo " + url);
     // Verifica se l'URL è valido
     if (url) {
       // Prova ad aprire l'URL nel browser predefinito

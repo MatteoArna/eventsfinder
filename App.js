@@ -23,8 +23,15 @@ const pages = [
   {
     name: "Oh My Prague - Trips",
     url: "https://www.tickettailor.com/events/ohmyprague?fbclid=PAAaYkX_r77zY2LTaneP63d4J5uU5Kwdr0gwKRkYt6VW90cg_UEIQBIIO3shI_aem_AWYNHQD9VHFatYLDZlCzjfsfapccULlEOsgT5iQM-tFyarDRrqdszFGQuzOKGifxgh4",
+  },
+  {
+    name: "Erasmusland",
+    url: "https://www.tickettailor.com/events/wprgentertainment?fbclid=PAAaYR29VELVHVGUIREwoYbVb55eMhKHMwFuHyk_1ESi-YTRhwFgDPOatkK-U_aem_AQ3sZr8zbJg36ujbeNwRCkijCflGizs53rbbebN2-w7_hJ5QavaN1ezXt-LCNAnd2qI",
   }
 ];
+
+
+
 
 export default function App() {
   const [events, setEvents] = useState([]);
@@ -32,7 +39,7 @@ export default function App() {
   async function fetchWebsiteData() {
     var counter = 0;
     try {
-      const allEvents = []; // Creare un array separato per tutti gli eventi
+      const allEvents = []; // Create a separate array for all events
       for(var i = 0; i < pages.length; i++){
         const response = await axios.get(pages[i].url);
         const $ = cheerio.load(response.data);
@@ -45,7 +52,6 @@ export default function App() {
           const location = $event.find('.venue').text();
           const image = $event.find('.event_image img').attr('src');
           const soldout = $event.find('.event_details .event_cta').text();
-          console.log("Soldout?" + soldout);
           //const price = "0";
           const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
           if(name != "ERASMUS CARD - OFFICIAL") {
@@ -53,7 +59,8 @@ export default function App() {
           }
         });
       }
-      return allEvents; // Restituire tutti gli eventi raccolti
+
+      return allEvents; // Return all collected events
     } catch (error) {
       console.error('Errore durante il web scraping:', error);
       throw error;

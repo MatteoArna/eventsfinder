@@ -2,64 +2,46 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import Event from '../Components/Event';
 import { format, isToday } from 'date-fns';
-
-function parseEventDate(dateString) {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    
-    // Estrai il giorno e il mese dalla stringa
-    const matches = dateString.match(/(\d{1,2}) (\w{3})/);
-    if (!matches) {
-      return null;
-    }
-    
-    const [, day, monthStr] = matches;
-    
-    // Mappa abbreviazioni del mese a numeri
-    const monthMap = {
-      Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-      Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-    };
-    
-    const month = monthMap[monthStr];
-    
-    // Calcola la data dell'evento
-    const eventDate = new Date(currentYear, month, day);
-    
-    // Verifica se la data è già passata
-    if (eventDate < currentDate) {
-      // Calcola la differenza in mesi tra la data attuale e l'evento
-      const monthsDiff = (currentDate.getFullYear() - eventDate.getFullYear()) * 12 +
-        currentDate.getMonth() - eventDate.getMonth();
-      
-      // Se la differenza è maggiore di 1 mese, imposta l'anno successivo
-      if (monthsDiff > 1) {
-        eventDate.setFullYear(currentYear + 1);
-      }
-    }
-    
-    // Formatta la data nel formato desiderato
-    const formattedDate = `${day}.${month + 1 < 10 ? '0' : ''}${month + 1}.${eventDate.getFullYear()}`;
-    
-    return formattedDate;
-  }
   
   
+  const EventScreen = ({ events }) => {
 
-const EventScreen = ({ events }) => {
-    //const events = route.params?.events || [];
+    function parseEventDate(inputDate) {
+        // Define an object to map month abbreviations to month numbers
+        const monthMap = {
+            Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+            Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+        };
+    
+        // Split the input date string into parts
+        const parts = inputDate.split(' ');
+    
+        // Check if the input contains "Multiple dates and times"
+        if (parts.includes('Multiple') && parts.includes('dates') && parts.includes('times')) {
+            return null;
+        }
+    
+        // Extract day, month, and time information
+        const day = parseInt(parts[1], 10);
+        const month = monthMap[parts[2]];
+        const timePart = parts[parts.length - 1];
+        const isNextYear = month < new Date().getMonth();
+    
+    
+        // Determine the year based on the current date and whether it's next year
+        const currentYear = new Date().getFullYear();
+        const year = isNextYear ? currentYear + 1 : currentYear;
+    
+        return new Date(year, month, day);
+    }
 
     // Group events by day
-    const eventsByDay = {};
-    events.forEach((event) => {
-        const eventDate = parseEventDate(event.date);
-        //const dayKey = format(eventDate, 'dd.MM.yyyy'); // Format day header
+    //const eventsByDay = [];
 
-        if (!eventsByDay[eventDate]) {
-            eventsByDay[eventDate] = [];
-        }
-
-        eventsByDay[eventDate].push(event);
+    const sortedEvents = [...events].sort((a, b) => {
+        const dateA = parseEventDate(a.date);
+        const dateB = parseEventDate(b.date);
+        return dateA - dateB;
     });
 
     // State for filtering starred events
@@ -67,20 +49,39 @@ const EventScreen = ({ events }) => {
 
     // Filter the events based on the 'onlyStarred' state
     const filteredEvents = onlyStarred
-        ? events.filter((event) => event.starred)
-        : events;
+        ? sortedEvents.filter((event) => event.starred)
+        : sortedEvents;
+
+    // Group events by day
+    const eventsByDay = {};
+
+    filteredEvents.forEach((event) => {
+        const eventDate = parseEventDate(event.date);
+
+        if (!eventDate) {
+            return; // Skip events with invalid dates
+        }
+
+        // Format the date in 'dd.mm.yyyy' format
+        const formattedDate = `${eventDate.getDate()}.${eventDate.getMonth() + 1}.${eventDate.getFullYear()}`;
+
+        if (!eventsByDay[formattedDate]) {
+            eventsByDay[formattedDate] = [];
+        }
+
+        eventsByDay[formattedDate].push(event);
+    });
 
     // Render sections for each day
     const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
         <View key={day}>
             <Text style={styles.dayHeader}>{isToday(new Date(day)) ? 'Today' : day}</Text>
-            {dayEvents
-                .filter((event) => !onlyStarred || event.starred)
-                .map((event) => (
-                    <Event key={event.id} event={event} />
-                ))}
+            {dayEvents.map((event) => (
+                <Event key={event.id} event={event} />
+            ))}
         </View>
     ));
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -120,5 +121,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+
 
 export default EventScreen;
