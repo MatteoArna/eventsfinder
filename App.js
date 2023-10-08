@@ -27,6 +27,10 @@ const pages = [
   {
     name: "Erasmusland",
     url: "https://www.tickettailor.com/events/wprgentertainment?fbclid=PAAaYR29VELVHVGUIREwoYbVb55eMhKHMwFuHyk_1ESi-YTRhwFgDPOatkK-U_aem_AQ3sZr8zbJg36ujbeNwRCkijCflGizs53rbbebN2-w7_hJ5QavaN1ezXt-LCNAnd2qI",
+  },
+  {
+    name: "MAD PRG",
+    url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
   }
 ];
 
@@ -52,10 +56,12 @@ export default function App() {
           const location = $event.find('.venue').text();
           const image = $event.find('.event_image img').attr('src');
           const soldout = $event.find('.event_details .event_cta').text();
+          const provider = pages[i].name;
+
           //const price = "0";
           const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
           if(name != "ERASMUS CARD - OFFICIAL") {
-            allEvents.push({ id, name, date, location, image, soldout, link });
+            allEvents.push({ id, name, date, location, image, soldout, link, provider });
           }
         });
       }

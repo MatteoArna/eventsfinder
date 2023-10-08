@@ -48,6 +48,7 @@ const Event = ({ event }) => {
           <TouchableOpacity onPress={handlePress}>
             <Text style={styles.eventLink}>Event Link</Text>
           </TouchableOpacity>
+          <Text style={styles.eventLocation}>Provider: {event.provider}</Text>
         </View>
         <View style={styles.starContainer}>
           <TouchableOpacity onPress={togglePress}>
