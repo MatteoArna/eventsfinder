@@ -53,7 +53,6 @@ const EventScreen = ({ events }) => {
         return dateA - dateB;
     });
 
-    console.log(sortedEvents);
 
     // State for filtering starred events
     const [onlyStarred, setOnlyStarred] = useState(false);

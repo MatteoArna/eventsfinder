@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import cheerio from 'cheerio';
+import 'react-native-gesture-handler';
 
 import HomeScreen from './Pages/HomeScreen';
 import EventsScreen from './Pages/EventsScreen';
@@ -82,20 +83,9 @@ export default function App() {
         console.error(error);
       });
   }, []);
-
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarLabel: 'Home',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="home" color={color} size={size} />
-            ),
-          }}
-        />
         <Tab.Screen
           name="Events"
           component={() => <EventsScreen events={events} />}
