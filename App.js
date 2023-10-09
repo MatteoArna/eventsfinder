@@ -63,6 +63,52 @@ export default function App() {
     setTheme((prevTheme) => (prevTheme === lightTheme ? darkTheme : lightTheme));
   };
 
+  function parseEventDate(inputDate, provider) {
+    const monthMap = {
+      Jan: 0,
+      Feb: 1,
+      Mar: 2,
+      Apr: 3,
+      May: 4,
+      Jun: 5,
+      Jul: 6,
+      Aug: 7,
+      Sep: 8,
+      Oct: 9,
+      Nov: 10,
+      Dec: 11,
+    };
+
+    const parts = inputDate.split(' ');
+
+    if (
+      parts.includes('Multiple') &&
+      parts.includes('dates') &&
+      parts.includes('times')
+    ) {
+      return null;
+    }
+
+    if (provider === 'MAD PRG') {
+      const day = parseInt(parts[2], 10);
+      const month = monthMap[parts[1]];
+      const year = new Date().getFullYear();
+      const isNextYear = month < new Date().getMonth();
+
+      if (isNextYear) {
+        year++;
+      }
+      return new Date(year, month, day);
+    } else {
+      const day = parseInt(parts[1], 10);
+      const month = monthMap[parts[2]];
+      const isNextYear = month < new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const year = isNextYear ? currentYear + 1 : currentYear;
+      return new Date(year, month, day);
+    }
+  }
+
   async function fetchWebsiteData() {
     var counter = 0;
     try {
@@ -75,13 +121,12 @@ export default function App() {
           const $event = $(element);
           const id = counter++;
           const name = $event.find('.name').text();
-          const date = $event.find('.date_and_time').text();
+          const date = parseEventDate($event.find('.date_and_time').text(), pages[i].name);
           const location = $event.find('.venue').text();
           const image = $event.find('.event_image img').attr('src');
           const soldout = $event.find('.event_details .event_cta').text();
           const provider = pages[i].name;
 
-          //const price = "0";
           const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
           if(name != "ERASMUS CARD - OFFICIAL") {
             allEvents.push({ id, name, date, location, image, soldout, link, provider });
@@ -89,7 +134,12 @@ export default function App() {
         });
       }
 
-      return allEvents; // Return all collected events
+
+      const sortedEvents = [...allEvents].sort((a, b) => {
+        return a.date - b.date;
+      });
+
+      return sortedEvents; // Return all collected events
     } catch (error) {
       console.error('Errore durante il web scraping:', error);
       throw error;
