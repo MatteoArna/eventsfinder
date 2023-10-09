@@ -60,8 +60,10 @@ const Event = ({ event }) => {
           </TouchableOpacity>
         </View>
       </View>
-    </Card>
+    </Card> 
   );
+
+  
 };
 
 const styles = StyleSheet.create({
