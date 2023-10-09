@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Image, Icon } from 'react-native-elements';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { Card, Image, Icon, Button } from 'react-native-elements';
 import { Linking } from 'react-native';
+import openMap from 'react-native-open-maps';
 
 const Event = ({ event, darkMode }) => {
+
   const handlePress = async () => {
     const url = event.link;
 
@@ -41,34 +43,35 @@ const Event = ({ event, darkMode }) => {
             style={styles.eventImage}
           />
           <View style={styles.starContainer}>
-          <TouchableOpacity onPress={togglePress}>
-            <Icon
-              style={styles.star}
-              name={isPressed ? 'star' : 'star-outline'}
-              size={40}
-              color={isPressed ? 'orange' : 'gray'}
-            />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity onPress={togglePress}>
+              <Icon
+                style={styles.star}
+                name={isPressed ? 'star' : 'star-outline'}
+                size={40}
+                color={isPressed ? 'orange' : 'gray'}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.eventDetails}>
           <Text style={[styles.eventName, darkMode && styles.darkModeText]}>
             {event.name}
           </Text>
-          <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
-            {event.location}
-          </Text>
+          <TouchableOpacity onPress={() => Linking.openURL(Platform.OS == 'ios' ? 'maps://app?daddr=' + event.location : 'google.navigation:q=' + event.location)}>
+            <Text style={[styles.eventLocation, darkMode ? styles.darkModeText : null]}>{event.location}</Text>
+          </TouchableOpacity>
           <Text style={[styles.eventPrice, darkMode && styles.darkModeText]}>
             State: {event.soldout}
           </Text>
-          <TouchableOpacity onPress={handlePress}>
-            <Text style={[styles.eventLink, darkMode && styles.darkModeLink]}>
-              Event Link
-            </Text>
-          </TouchableOpacity>
           <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
             Provider: {event.provider}
           </Text>
+          <Button
+            title="View Event"
+            onPress={handlePress}
+            buttonStyle={[styles.eventButton, darkMode && styles.darkModeButton]}
+            titleStyle={styles.eventButtonText}
+          />
         </View>
       </View>
     </Card>
@@ -135,10 +138,31 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   star: {
-    //place it in the middle
     paddingTop: 10,
     paddingBottom: 10,
-  }
+  },
+  eventButton: {
+    backgroundColor: 'teal', // Button background color
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  darkModeButton: {
+    backgroundColor: 'teal', // Dark mode button background color
+  },
+  eventButtonText: {
+    color: 'white', // Button text color
+  },
+  eventLocation: {
+    fontSize: 16,
+    color: 'gray', // Default text color
+    marginBottom: 5,
+  },
+  darkModeText: {
+    color: '#fff', // Dark mode text color
+  },  
+  darkModeLocation: {
+    color: 'lightgray', // Dark mode event location text color
+  },
 });
 
 export default Event;

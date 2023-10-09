@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Appearance } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
