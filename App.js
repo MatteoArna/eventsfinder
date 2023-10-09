@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { Appearance, Platform } from 'react-native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import 'react-native-gesture-handler';
 
-import HomeScreen from './Pages/HomeScreen';
 import EventsScreen from './Pages/EventsScreen';
 import SettingsScreen from './Pages/SettingsScreen';
 
@@ -35,11 +34,34 @@ const pages = [
   }
 ];
 
+const lightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: '#fff',
+    text: '#000',
+  },
+};
 
-
+const darkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: '#777',
+    text: '#fff',
+  },
+};
 
 export default function App() {
   const [events, setEvents] = useState([]);
+  const colorScheme = Appearance.getColorScheme(); // Get the current color scheme (light or dark)
+  const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
+
+  // Function to toggle between light and dark mode
+  const toggleDarkMode = () => {
+    // Toggle dark mode state
+    setTheme((prevTheme) => (prevTheme === lightTheme ? darkTheme : lightTheme));
+  };
 
   async function fetchWebsiteData() {
     var counter = 0;
@@ -73,47 +95,53 @@ export default function App() {
       throw error;
     }
   }
-
-  useEffect(() => {
+useEffect(() => {
     fetchWebsiteData()
-      .then(result => {
+      .then((result) => {
         setEvents(result);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }, []);
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator>
+    <NavigationContainer theme={theme}>
+      <Tab.Navigator
+        tabBarOptions={{
+          style: {
+            backgroundColor: theme.colors.background,
+          },
+          labelStyle: {
+            color: theme.colors.text,
+          },
+        }}
+      >
         <Tab.Screen
           name="Events"
-          component={() => <EventsScreen events={events} />}
+          component={() => <EventsScreen events={events} darkMode={theme === darkTheme} />}
           options={{
             tabBarLabel: 'Events',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="calendar" color={color} size={size} />
             ),
+            headerShown: false,
           }}
         />
         <Tab.Screen
           name="Settings"
-          component={SettingsScreen}
+          component={() => (
+            <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />
+          )}
           options={{
             tabBarLabel: 'Settings',
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name='hammer-wrench' color={color} size={size} />
+              <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
             ),
+            headerShown: false,
           }}
         />
       </Tab.Navigator>
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});
