@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Avatar, Image, Icon } from 'react-native-elements';
+import { Card, Image, Icon } from 'react-native-elements';
 import { Linking } from 'react-native';
 
-const Event = ({ event }) => {
+const Event = ({ event, darkMode }) => {
   const handlePress = async () => {
     const url = event.link;
-    // Verifica se l'URL è valido
+
     if (url) {
-      // Prova ad aprire l'URL nel browser predefinito
       const supported = await Linking.canOpenURL(url);
       if (supported) {
         await Linking.openURL(url);
@@ -30,6 +29,7 @@ const Event = ({ event }) => {
       containerStyle={[
         styles.eventCard,
         event.soldout.includes("Sold out") && styles.soldOutCard,
+        darkMode && styles.darkModeCard,
       ]}
     >
       <View style={styles.container}>
@@ -40,24 +40,35 @@ const Event = ({ event }) => {
             alt='immagine evento'
             style={styles.eventImage}
           />
-        </View>
-        <View style={styles.eventDetails}>
-          <Text style={styles.eventName}>{event.name}</Text>
-          <Text style={styles.eventLocation}>{event.location}</Text>
-          <Text style={styles.eventPrice}>State: {event.soldout} </Text>
-          <TouchableOpacity onPress={handlePress}>
-            <Text style={styles.eventLink}>Event Link</Text>
-          </TouchableOpacity>
-          <Text style={styles.eventLocation}>Provider: {event.provider}</Text>
-        </View>
-        <View style={styles.starContainer}>
+          <View style={styles.starContainer}>
           <TouchableOpacity onPress={togglePress}>
             <Icon
-              name={isPressed ? 'star' : 'star-outline'} // Name of the star icon
-              size={30}
-              color={isPressed ? 'orange' : 'gray'} // Change color based on pressed state
+              style={styles.star}
+              name={isPressed ? 'star' : 'star-outline'}
+              size={40}
+              color={isPressed ? 'orange' : 'gray'}
             />
           </TouchableOpacity>
+        </View>
+        </View>
+        <View style={styles.eventDetails}>
+          <Text style={[styles.eventName, darkMode && styles.darkModeText]}>
+            {event.name}
+          </Text>
+          <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
+            {event.location}
+          </Text>
+          <Text style={[styles.eventPrice, darkMode && styles.darkModeText]}>
+            State: {event.soldout}
+          </Text>
+          <TouchableOpacity onPress={handlePress}>
+            <Text style={[styles.eventLink, darkMode && styles.darkModeLink]}>
+              Event Link
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
+            Provider: {event.provider}
+          </Text>
         </View>
       </View>
     </Card>
@@ -70,22 +81,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   soldOutCard: {
-    backgroundColor: 'seashell', // Imposta lo sfondo in rosso se l'evento è sold-out
+    backgroundColor: 'seashell',
+  },
+  darkModeCard: {
+    backgroundColor: '#333', // Dark mode background color
   },
   container: {
-    flexDirection: 'row', // Mostra gli elementi in una riga
+    flexDirection: 'row',
   },
   imageContainer: {
-    flex: 1, // Flessibile per occupare la metà sinistra
-    marginRight: 10, // Aggiungi margine destro per separare l'immagine dalla stella
+    flex: 1,
+    marginRight: 10,
   },
   eventImage: {
     width: '100%',
-    aspectRatio: 1, // Rendi l'immagine quadrata
+    aspectRatio: 1,
     borderRadius: 10,
   },
   eventDetails: {
-    flex: 2, // Flessibile per occupare la metà destra
+    flex: 2,
     padding: 10,
   },
   eventName: {
@@ -108,13 +122,23 @@ const styles = StyleSheet.create({
     color: 'blue',
     marginBottom: 5,
   },
-  starContainer: {
-    flex: 0.2, // Flessibile per occupare il 20% dello spazio
-    justifyContent: 'flex-end', // Allinea la stella in basso
-    alignItems: 'center', // Allinea la stella al centro verticalmente
-    paddingBottom: 10, // Aggiungi un po' di spazio in basso
-    flex: 1,
+  darkModeText: {
+    color: '#fff', // Dark mode text color
   },
+  darkModeLink: {
+    color: 'lightblue', // Dark mode link color
+  },
+  starContainer: {
+    flex: 0.2,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 10,
+  },
+  star: {
+    //place it in the middle
+    paddingTop: 10,
+    paddingBottom: 10,
+  }
 });
 
 export default Event;
