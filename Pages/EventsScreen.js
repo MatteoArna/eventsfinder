@@ -70,10 +70,23 @@ const EventScreen = ({ events, pages, darkMode }) => {
     eventsByDay[formattedDate].push(event);
   });
 
+  function translate(a){
+    const dayMap = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ];
+    return dayMap[a];
+}
+
   const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
     <View key={day}>
       <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
-        {day}
+        {day + " (" + translate(dayEvents[0].date.getDay()) + ")"}
       </Text>
       {dayEvents.map((event) => (
         <Event key={event.id} event={event} darkMode={darkMode} />
@@ -84,15 +97,6 @@ const EventScreen = ({ events, pages, darkMode }) => {
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
       <View style={styles.filterContainer}>
-        {/*
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search events..."
-          value={searchQuery}
-          onChangeText={handleSearchInputChange}
-          placeholderTextColor="#888"
-        />
-  */}
         <SearchBar
             style={darkMode ? styles.SearchBarDark : styles.SearchBar}
             containerStyle={darkMode ? styles.containerDark : styles.SearchBar}
