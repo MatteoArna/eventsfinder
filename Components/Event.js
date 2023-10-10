@@ -43,9 +43,6 @@ const Event = ({ id, event, darkMode }) => {
           <TouchableOpacity onPress={() => Linking.openURL(Platform.OS == 'ios' ? 'maps://app?daddr=' + event.location : 'google.navigation:q=' + event.location)}>
             <Text style={[styles.eventLocation, darkMode ? styles.darkModeText : null]}>{event.location}</Text>
           </TouchableOpacity>
-          <Text style={[styles.eventPrice, darkMode && styles.darkModeText]}>
-            State: {event.soldout}
-          </Text>
           <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
             Provider: {event.provider}
           </Text>

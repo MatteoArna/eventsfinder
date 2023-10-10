@@ -32,6 +32,10 @@ const pages = [
   {
     name: "MAD PRG",
     url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
+  },
+  {
+    name: "Duplex",
+    url: "https://www.duplex.cz/allevents",
   }
 ];
 
@@ -80,6 +84,7 @@ export default function App() {
       Dec: 11,
     };
 
+
     const parts = inputDate.split(' ');
 
     if (
@@ -100,7 +105,25 @@ export default function App() {
         year++;
       }
       return new Date(year, month, day);
-    } else {
+    } else if (provider == "Duplex"){
+      const monthMap = {
+        JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
+        JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12
+      };
+      const monthAbbreviation = parts[0].toUpperCase();
+      const day = parseInt(parts[1], 10);
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      const month = monthMap[monthAbbreviation];
+      const currentDate = new Date();
+      const eventDate = new Date(currentYear, month - 1, day);
+      if (currentDate > eventDate) {
+        // If the date has passed, set it for the next year
+        eventDate.setFullYear(nextYear);
+      }
+      return eventDate;
+
+    }else {
       const day = parseInt(parts[1], 10);
       const month = monthMap[parts[2]];
       const isNextYear = month < new Date().getMonth();
@@ -117,22 +140,41 @@ export default function App() {
       for(var i = 0; i < pages.length; i++){
         const response = await axios.get(pages[i].url);
         const $ = cheerio.load(response.data);
-        const eventElements = $('.row.event_listing');
-        eventElements.each((index, element) => {
-          const $event = $(element);
-          const id = counter++;
-          const name = $event.find('.name').text();
-          const date = parseEventDate($event.find('.date_and_time').text(), pages[i].name);
-          const location = $event.find('.venue').text();
-          const image = $event.find('.event_image img').attr('src');
-          const soldout = $event.find('.event_details .event_cta').text();
-          const provider = pages[i].name;
+        if(pages[i].name == "Duplex"){
+          const eventElements = $('.row .eventRow');
+          eventElements.each((index, element) => {
+            const $event = $(element);
+            const id = counter++;
+            const name = $event.find('.event_title').text().split(" – ")[0];
+            
+            const month = $event.find('.event_date .month').text(); // Extract the month (e.g., Oct)
+            const year =  $event.find('.event_date .date').text(); 
+            const sdate = month + " " + year;
+            const date = parseEventDate(sdate, pages[i].name);
+            const imageUrl = $event.find('img.img_placeholder').attr('src');
+            const link = $event.find('a.event_title_link').attr('href');
 
-          const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
-          if(name != "ERASMUS CARD - OFFICIAL") {
-            allEvents.push({ id, name, date, location, image, soldout, link, provider });
-          }
-        });
+            allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: pages[i].name });
+          });
+
+        }else{
+          const eventElements = $('.row.event_listing');
+          eventElements.each((index, element) => {
+            const $event = $(element);
+            const id = counter++;
+            const name = $event.find('.name').text();
+            const date = parseEventDate($event.find('.date_and_time').text(), pages[i].name);
+            const location = $event.find('.venue').text();
+            const image = $event.find('.event_image img').attr('src');
+            const soldout = $event.find('.event_details .event_cta').text();
+            const provider = pages[i].name;
+
+            const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
+            if(name != "ERASMUS CARD - OFFICIAL") {
+              allEvents.push({ id, name, date, location, image, soldout, link, provider });
+            }
+          });
+        }
       }
 
 
