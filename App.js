@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Children } from 'react';
 import { Appearance, Platform } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -233,14 +233,15 @@ useEffect(() => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer theme={theme}>
         <Tab.Navigator
-          tabBarOptions={{
-            style: {
-              backgroundColor: theme.colors.background,
-            },
-            labelStyle: {
-              color: theme.colors.text,
-            },
-          }}
+        screenOptions={{
+          style: {
+            backgroundColor: theme.colors.background,
+          },
+          labelStyle: {
+            color: theme.colors.text,
+          },
+        }
+      }
         >
           <Tab.Screen
             name="Events"
