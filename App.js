@@ -36,6 +36,10 @@ const pages = [
   {
     name: "Duplex",
     url: "https://www.duplex.cz/allevents",
+  },
+  {
+    name: "Epic, Prague",
+    url: "https://www.epicprague.com/en/program",
   }
 ];
 
@@ -123,7 +127,9 @@ export default function App() {
       }
       return eventDate;
 
-    }else {
+    }else if(provider == "Epic, Prague"){
+
+    }else{
       const day = parseInt(parts[1], 10);
       const month = monthMap[parts[2]];
       const isNextYear = month < new Date().getMonth();
@@ -157,6 +163,31 @@ export default function App() {
             allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: pages[i].name });
           });
 
+        }else if(pages[i].name == "Epic, Prague"){
+          const eventElements = $('.program__item');
+          eventElements.each((index, element) => {
+            const $event = $(element);
+            const id = counter++;
+            // Extract the name
+            const name = $event.find('.program__item-heading a').text().trim();
+            if(name == null || name == ""){
+              return;
+            }
+
+            // Extract the date
+            const sdate = $event.find('time.program__item-datetime a').text().trim();
+            const [day, month, year] = sdate.split('/');
+            const date = new Date(year.substring(0,4), month - 1, day);
+
+            var image = $event.find('.program__item-image.m-grey').css('background-image');
+            image = image.substring(5, image.length - 1);
+            image = image.replace(/\\/g, "");
+            image = "https://www.epicprague.com" + image;
+
+            link = "https://www.epicprague.com" + $event.find('.program__item-heading a').attr('href');
+            allEvents.push({ id, name, date, location: "Epic Prague", image, soldout: "Available", link, provider: pages[i].name });
+          });
+          
         }else{
           const eventElements = $('.row.event_listing');
           eventElements.each((index, element) => {
