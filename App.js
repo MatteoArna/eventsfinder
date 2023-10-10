@@ -9,6 +9,7 @@ import 'react-native-gesture-handler';
 
 import EventsScreen from './Pages/EventsScreen';
 import SettingsScreen from './Pages/SettingsScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Tab = createBottomTabNavigator();
 const pages = [
@@ -156,42 +157,44 @@ useEffect(() => {
   }, []);
 
   return (
-    <NavigationContainer theme={theme}>
-      <Tab.Navigator
-        tabBarOptions={{
-          style: {
-            backgroundColor: theme.colors.background,
-          },
-          labelStyle: {
-            color: theme.colors.text,
-          },
-        }}
-      >
-        <Tab.Screen
-          name="Events"
-          component={() => <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} />}
-          options={{
-            tabBarLabel: 'Events',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="calendar" color={color} size={size} />
-            ),
-            headerShown: false,
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer theme={theme}>
+        <Tab.Navigator
+          tabBarOptions={{
+            style: {
+              backgroundColor: theme.colors.background,
+            },
+            labelStyle: {
+              color: theme.colors.text,
+            },
           }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={() => (
-            <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />
-          )}
-          options={{
-            tabBarLabel: 'Settings',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
-            ),
-            headerShown: false,
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+        >
+          <Tab.Screen
+            name="Events"
+            component={() => <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} />}
+            options={{
+              tabBarLabel: 'Events',
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="calendar" color={color} size={size} />
+              ),
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Settings"
+            component={() => (
+              <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />
+            )}
+            options={{
+              tabBarLabel: 'Settings',
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
+              ),
+              headerShown: false,
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

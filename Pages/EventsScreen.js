@@ -2,10 +2,10 @@ import React, { useState, useRef } from 'react'; // Import useRef
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   ScrollView,
   SafeAreaView,
+  RefreshControl
 } from 'react-native';
 import Event from '../Components/Event';
 import { SearchBar } from 'react-native-elements';
@@ -94,6 +94,15 @@ const EventScreen = ({ events, pages, darkMode }) => {
     </View>
   ));
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
       <View style={styles.filterContainer}>
@@ -107,7 +116,15 @@ const EventScreen = ({ events, pages, darkMode }) => {
             platform='ios'
       />
       </View>
-        <ScrollView style={styles.eventList}>
+        <ScrollView 
+            style={styles.eventList}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                />
+            }
+>
         
             {eventSections}
         
