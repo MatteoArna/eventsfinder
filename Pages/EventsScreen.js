@@ -1,86 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // Import useRef
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  TouchableOpacity,
+  RefreshControl
 } from 'react-native';
 import Event from '../Components/Event';
-import { format, isToday } from 'date-fns';
+import { SearchBar } from 'react-native-elements';
 
-const EventScreen = ({ events, darkMode }) => {
-  function parseEventDate(inputDate, provider) {
-    const monthMap = {
-      Jan: 0,
-      Feb: 1,
-      Mar: 2,
-      Apr: 3,
-      May: 4,
-      Jun: 5,
-      Jul: 6,
-      Aug: 7,
-      Sep: 8,
-      Oct: 9,
-      Nov: 10,
-      Dec: 11,
-    };
+const EventScreen = ({ events, pages, darkMode }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProvider, setSelectedProvider] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState(events);
 
-    const parts = inputDate.split(' ');
+  // Use useRef to get a reference to the dropdown component
+  const dropdownRef = useRef();
 
-    if (
-      parts.includes('Multiple') &&
-      parts.includes('dates') &&
-      parts.includes('times')
-    ) {
-      return null;
-    }
+  const filterEvents = () => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const filtered = events.filter(
+      (event) =>
+        (event.name && event.name.toLowerCase().includes(lowerCaseQuery)) ||
+        event.provider.includes(lowerCaseQuery) ||
+        event.location.includes(lowerCaseQuery)
+    );
 
-    if (provider == 'MAD PRG') {
-      const day = parseInt(parts[2], 10);
-      const month = monthMap[parts[1]];
-      const year = new Date().getFullYear();
-      const isNextYear = month < new Date().getMonth();
+    const filteredByProvider = selectedProvider
+      ? filtered.filter((event) => event.provider === selectedProvider)
+      : filtered;
 
-      if (isNextYear) {
-        year++;
-      }
-      return new Date(year, month, day);
-    } else {
-      const day = parseInt(parts[1], 10);
-      const month = monthMap[parts[2]];
-      const isNextYear = month < new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const year = isNextYear ? currentYear + 1 : currentYear;
-      return new Date(year, month, day);
-    }
-  }
+    setFilteredEvents(filteredByProvider);
+  };
 
-  const sortedEvents = [...events].sort((a, b) => {
-    const dateA = parseEventDate(a.date, a.provider);
-    const dateB = parseEventDate(b.date, b.provider);
-    return dateA - dateB;
-  });
+  const handleSearchInputChange = (query) => {
+    setSearchQuery(query);
+    filterEvents();
+  };
 
-  const [onlyStarred, setOnlyStarred] = useState(false);
+  const handleProviderChange = (provider) => {
+    setSelectedProvider(provider);
+    filterEvents();
+  };
 
-  const filteredEvents = onlyStarred
-    ? sortedEvents.filter((event) => event.starred)
-    : sortedEvents;
+  const handleFilterErase = () => {
+    setSearchQuery('');
+    setSelectedProvider('');
+    filterEvents();
+    // Close the dropdown when the filter is erased
+    dropdownRef.current && dropdownRef.current.hide();
+  };
 
   const eventsByDay = {};
 
   filteredEvents.forEach((event) => {
-    const eventDate = parseEventDate(event.date, event.provider);
+    const eventDate = event.date;
 
     if (!eventDate) {
       return;
     }
 
-    const formattedDate = `${eventDate.getDate()}.${
-      eventDate.getMonth() + 1
-    }.${eventDate.getFullYear()}`;
+    const formattedDate = `${eventDate.getDate()}.${eventDate.getMonth() + 1}.${eventDate.getFullYear()}`;
 
     if (!eventsByDay[formattedDate]) {
       eventsByDay[formattedDate] = [];
@@ -89,10 +70,23 @@ const EventScreen = ({ events, darkMode }) => {
     eventsByDay[formattedDate].push(event);
   });
 
+  function translate(a){
+    const dayMap = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ];
+    return dayMap[a];
+}
+
   const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
     <View key={day}>
       <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
-        {isToday(new Date(day)) ? 'Today' : day}
+        {day + " (" + translate(dayEvents[0].date.getDay()) + ")"}
       </Text>
       {dayEvents.map((event) => (
         <Event key={event.id} event={event} darkMode={darkMode} />
@@ -100,24 +94,45 @@ const EventScreen = ({ events, darkMode }) => {
     </View>
   ));
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
-      <TouchableOpacity
-        style={[styles.toggleButton, darkMode && styles.toggleButtonDark]}
-        onPress={() => {
-          setOnlyStarred((prev) => !prev);
-        }}
-      >
-        <Text
-          style={[styles.toggleButtonText, darkMode && styles.toggleButtonTextDark]}
-        >
-          {onlyStarred ? 'Show All' : 'Only Starred'}
-        </Text>
-      </TouchableOpacity>
-      <ScrollView style={styles.eventList}>{eventSections}</ScrollView>
+      <View style={styles.filterContainer}>
+        <SearchBar
+            style={darkMode ? styles.SearchBarDark : styles.SearchBar}
+            containerStyle={darkMode ? styles.containerDark : styles.SearchBar}
+            inputContainerStyle={darkMode ? styles.SearchBarDark : styles.SearchBar}
+            placeholder="Search events..."
+            onChangeText={handleSearchInputChange}
+            value={searchQuery}
+            platform='ios'
+      />
+      </View>
+        <ScrollView 
+            style={styles.eventList}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                />
+            }
+>
+        
+            {eventSections}
+        
+        </ScrollView>
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -136,32 +151,51 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
   },
   dayHeaderDark: {
-    backgroundColor: '#333', // Dark mode background color
-    color: '#fff', // Dark mode text color
-  },
-  toggleButton: {
-    padding: 20,
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  toggleButtonDark: {
-    backgroundColor: '#333', // Dark mode background color
-  },
-  toggleButtonText: {
-    fontSize: 18,
-    color: '#555',
-  },
-  toggleButtonTextDark: {
-    color: '#fff', // Dark mode text color
+    backgroundColor: '#333',
+    color: '#fff',
   },
   eventList: {
     flex: 1,
     width: '100%',
+  },
+  filterContainer: {
+    marginHorizontal: 10,
+  },
+  dropdownContainer: {
+    width: 150,
+    maxHeight: 200,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    backgroundColor: 'white',
+  },
+  dropdownText: {
+    fontSize: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center', // Centra verticalmente gli elementi nella riga
+    marginVertical: 10, // Aggiunge margine sopra e sotto alla riga
+  },
+  dropdownText: {
+    fontSize: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  SearchBarDark: {
+    backgroundColor: '#333',
+    color: '#fff',
+  },
+  dropdownContainer: {
+    width: 150,
+    maxHeight: 200,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    backgroundColor: 'white',
+  },
+  trashButton: {
+    marginLeft: 10, // Aggiunge margine sinistro tra il dropdown e l'icona del cestino
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Children } from 'react';
 import { Appearance, Platform } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,6 +9,7 @@ import 'react-native-gesture-handler';
 
 import EventsScreen from './Pages/EventsScreen';
 import SettingsScreen from './Pages/SettingsScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Tab = createBottomTabNavigator();
 const pages = [
@@ -31,6 +32,14 @@ const pages = [
   {
     name: "MAD PRG",
     url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
+  },
+  {
+    name: "Duplex",
+    url: "https://www.duplex.cz/allevents",
+  },
+  {
+    name: "Epic, Prague",
+    url: "https://www.epicprague.com/en/program",
   }
 ];
 
@@ -63,6 +72,73 @@ export default function App() {
     setTheme((prevTheme) => (prevTheme === lightTheme ? darkTheme : lightTheme));
   };
 
+  function parseEventDate(inputDate, provider) {
+    const monthMap = {
+      Jan: 0,
+      Feb: 1,
+      Mar: 2,
+      Apr: 3,
+      May: 4,
+      Jun: 5,
+      Jul: 6,
+      Aug: 7,
+      Sep: 8,
+      Oct: 9,
+      Nov: 10,
+      Dec: 11,
+    };
+
+
+    const parts = inputDate.split(' ');
+
+    if (
+      parts.includes('Multiple') &&
+      parts.includes('dates') &&
+      parts.includes('times')
+    ) {
+      return null;
+    }
+
+    if (provider === 'MAD PRG') {
+      const day = parseInt(parts[2], 10);
+      const month = monthMap[parts[1]];
+      const year = new Date().getFullYear();
+      const isNextYear = month < new Date().getMonth();
+
+      if (isNextYear) {
+        year++;
+      }
+      return new Date(year, month, day);
+    } else if (provider == "Duplex"){
+      const monthMap = {
+        JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
+        JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12
+      };
+      const monthAbbreviation = parts[0].toUpperCase();
+      const day = parseInt(parts[1], 10);
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      const month = monthMap[monthAbbreviation];
+      const currentDate = new Date();
+      const eventDate = new Date(currentYear, month - 1, day);
+      if (currentDate > eventDate) {
+        // If the date has passed, set it for the next year
+        eventDate.setFullYear(nextYear);
+      }
+      return eventDate;
+
+    }else if(provider == "Epic, Prague"){
+
+    }else{
+      const day = parseInt(parts[1], 10);
+      const month = monthMap[parts[2]];
+      const isNextYear = month < new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const year = isNextYear ? currentYear + 1 : currentYear;
+      return new Date(year, month, day);
+    }
+  }
+
   async function fetchWebsiteData() {
     var counter = 0;
     try {
@@ -70,26 +146,74 @@ export default function App() {
       for(var i = 0; i < pages.length; i++){
         const response = await axios.get(pages[i].url);
         const $ = cheerio.load(response.data);
-        const eventElements = $('.row.event_listing');
-        eventElements.each((index, element) => {
-          const $event = $(element);
-          const id = counter++;
-          const name = $event.find('.name').text();
-          const date = $event.find('.date_and_time').text();
-          const location = $event.find('.venue').text();
-          const image = $event.find('.event_image img').attr('src');
-          const soldout = $event.find('.event_details .event_cta').text();
-          const provider = pages[i].name;
+        if(pages[i].name == "Duplex"){
+          const eventElements = $('.row .eventRow');
+          eventElements.each((index, element) => {
+            const $event = $(element);
+            const id = counter++;
+            const name = $event.find('.event_title').text().split(" – ")[0];
+            
+            const month = $event.find('.event_date .month').text(); // Extract the month (e.g., Oct)
+            const year =  $event.find('.event_date .date').text(); 
+            const sdate = month + " " + year;
+            const date = parseEventDate(sdate, pages[i].name);
+            const imageUrl = $event.find('img.img_placeholder').attr('src');
+            const link = $event.find('a.event_title_link').attr('href');
 
-          //const price = "0";
-          const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
-          if(name != "ERASMUS CARD - OFFICIAL") {
-            allEvents.push({ id, name, date, location, image, soldout, link, provider });
-          }
-        });
+            allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: pages[i].name });
+          });
+
+        }else if(pages[i].name == "Epic, Prague"){
+          const eventElements = $('.program__item');
+          eventElements.each((index, element) => {
+            const $event = $(element);
+            const id = counter++;
+            // Extract the name
+            const name = $event.find('.program__item-heading a').text().trim();
+            if(name == null || name == ""){
+              return;
+            }
+
+            // Extract the date
+            const sdate = $event.find('time.program__item-datetime a').text().trim();
+            const [day, month, year] = sdate.split('/');
+            const date = new Date(year.substring(0,4), month - 1, day);
+
+            var image = $event.find('.program__item-image.m-grey').css('background-image');
+            image = image.substring(5, image.length - 1);
+            image = image.replace(/\\/g, "");
+            image = "https://www.epicprague.com" + image;
+
+            link = "https://www.epicprague.com" + $event.find('.program__item-heading a').attr('href');
+            allEvents.push({ id, name, date, location: "Epic Prague", image, soldout: "Available", link, provider: pages[i].name });
+          });
+          
+        }else{
+          const eventElements = $('.row.event_listing');
+          eventElements.each((index, element) => {
+            const $event = $(element);
+            const id = counter++;
+            const name = $event.find('.name').text();
+            const date = parseEventDate($event.find('.date_and_time').text(), pages[i].name);
+            const location = $event.find('.venue').text();
+            const image = $event.find('.event_image img').attr('src');
+            const soldout = $event.find('.event_details .event_cta').text();
+            const provider = pages[i].name;
+
+            const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
+            if(name != "ERASMUS CARD - OFFICIAL") {
+              allEvents.push({ id, name, date, location, image, soldout, link, provider });
+            }
+          });
+        }
       }
 
-      return allEvents; // Return all collected events
+
+      const sortedEvents = [...allEvents].sort((a, b) => {
+        return a.date - b.date;
+      });
+
+      return sortedEvents; // Return all collected events
     } catch (error) {
       console.error('Errore durante il web scraping:', error);
       throw error;
@@ -106,42 +230,45 @@ useEffect(() => {
   }, []);
 
   return (
-    <NavigationContainer theme={theme}>
-      <Tab.Navigator
-        tabBarOptions={{
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer theme={theme}>
+        <Tab.Navigator
+        screenOptions={{
           style: {
             backgroundColor: theme.colors.background,
           },
           labelStyle: {
             color: theme.colors.text,
           },
-        }}
-      >
-        <Tab.Screen
-          name="Events"
-          component={() => <EventsScreen events={events} darkMode={theme === darkTheme} />}
-          options={{
-            tabBarLabel: 'Events',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="calendar" color={color} size={size} />
-            ),
-            headerShown: false,
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={() => (
-            <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />
-          )}
-          options={{
-            tabBarLabel: 'Settings',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
-            ),
-            headerShown: false,
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+        }
+      }
+        >
+          <Tab.Screen
+            name="Events"
+            component={() => <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} />}
+            options={{
+              tabBarLabel: 'Events',
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="calendar" color={color} size={size} />
+              ),
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Settings"
+            component={() => (
+              <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />
+            )}
+            options={{
+              tabBarLabel: 'Settings',
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
+              ),
+              headerShown: false,
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
