@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // Import useRef
 import {
   View,
   Text,
@@ -6,27 +6,50 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  TouchableOpacity,
 } from 'react-native';
 import Event from '../Components/Event';
-import { format, isToday } from 'date-fns';
+import { SearchBar } from 'react-native-elements';
 
-const EventScreen = ({ events, darkMode }) => {
-  const [onlyStarred, setOnlyStarred] = useState(false);
+const EventScreen = ({ events, pages, darkMode }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProvider, setSelectedProvider] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
+
+  // Use useRef to get a reference to the dropdown component
+  const dropdownRef = useRef();
 
   const filterEvents = () => {
     const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = events.filter((event) =>
-      event.name && event.name.toLowerCase().includes(lowerCaseQuery)
+    const filtered = events.filter(
+      (event) =>
+        (event.name && event.name.toLowerCase().includes(lowerCaseQuery)) ||
+        event.provider.includes(lowerCaseQuery) ||
+        event.location.includes(lowerCaseQuery)
     );
-    setFilteredEvents(filtered);
+
+    const filteredByProvider = selectedProvider
+      ? filtered.filter((event) => event.provider === selectedProvider)
+      : filtered;
+
+    setFilteredEvents(filteredByProvider);
   };
 
   const handleSearchInputChange = (query) => {
     setSearchQuery(query);
     filterEvents();
+  };
+
+  const handleProviderChange = (provider) => {
+    setSelectedProvider(provider);
+    filterEvents();
+  };
+
+  const handleFilterErase = () => {
+    setSearchQuery('');
+    setSelectedProvider('');
+    filterEvents();
+    // Close the dropdown when the filter is erased
+    dropdownRef.current && dropdownRef.current.hide();
   };
 
   const eventsByDay = {};
@@ -38,9 +61,7 @@ const EventScreen = ({ events, darkMode }) => {
       return;
     }
 
-    const formattedDate = `${eventDate.getDate()}.${
-      eventDate.getMonth() + 1
-    }.${eventDate.getFullYear()}`;
+    const formattedDate = `${eventDate.getDate()}.${eventDate.getMonth() + 1}.${eventDate.getFullYear()}`;
 
     if (!eventsByDay[formattedDate]) {
       eventsByDay[formattedDate] = [];
@@ -52,7 +73,7 @@ const EventScreen = ({ events, darkMode }) => {
   const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
     <View key={day}>
       <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
-        {isToday(new Date(day)) ? 'Today' : day}
+        {day}
       </Text>
       {dayEvents.map((event) => (
         <Event key={event.id} event={event} darkMode={darkMode} />
@@ -62,29 +83,35 @@ const EventScreen = ({ events, darkMode }) => {
 
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
-      <TextInput
-        style={[styles.searchBar, darkMode && styles.searchBarDark]}
-        placeholder="Search events..."
-        value={searchQuery}
-        onChangeText={handleSearchInputChange}
-        placeholderTextColor="#888" // Placeholder text color
+      <View style={styles.filterContainer}>
+        {/*
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search events..."
+          value={searchQuery}
+          onChangeText={handleSearchInputChange}
+          placeholderTextColor="#888"
+        />
+  */}
+        <SearchBar
+            style={darkMode ? styles.SearchBarDark : styles.SearchBar}
+            containerStyle={darkMode ? styles.containerDark : styles.SearchBar}
+            inputContainerStyle={darkMode ? styles.SearchBarDark : styles.SearchBar}
+            placeholder="Search events..."
+            onChangeText={handleSearchInputChange}
+            value={searchQuery}
+            platform='ios'
       />
-      <TouchableOpacity
-        style={[styles.toggleButton, darkMode && styles.toggleButtonDark]}
-        onPress={() => {
-          setOnlyStarred((prev) => !prev);
-        }}
-      >
-        <Text
-          style={[styles.toggleButtonText, darkMode && styles.toggleButtonTextDark]}
-        >
-          {onlyStarred ? 'Show All' : 'Only Starred'}
-        </Text>
-      </TouchableOpacity>
-      <ScrollView style={styles.eventList}>{eventSections}</ScrollView>
+      </View>
+        <ScrollView style={styles.eventList}>
+        
+            {eventSections}
+        
+        </ScrollView>
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -106,43 +133,48 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     color: '#fff',
   },
-  toggleButton: {
-    padding: 20,
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  toggleButtonDark: {
-    backgroundColor: '#333',
-  },
-  toggleButtonText: {
-    fontSize: 18,
-    color: '#555',
-  },
-  toggleButtonTextDark: {
-    color: '#fff',
-  },
   eventList: {
     flex: 1,
     width: '100%',
   },
-  searchBar: {
-    paddingHorizontal: 20,
-    paddingVertical: 15, // Increase the vertical padding
-    backgroundColor: '#f2f2f2',
-    borderRadius: 16, // Increase border radius
-    marginBottom: 20,
-    marginLeft: 10,
-    marginRight: 10,
-    fontSize: 18, // Increase font size
+  filterContainer: {
+    marginHorizontal: 10,
   },
-  searchBarDark: {
+  dropdownContainer: {
+    width: 150,
+    maxHeight: 200,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    backgroundColor: 'white',
+  },
+  dropdownText: {
+    fontSize: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center', // Centra verticalmente gli elementi nella riga
+    marginVertical: 10, // Aggiunge margine sopra e sotto alla riga
+  },
+  dropdownText: {
+    fontSize: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  SearchBarDark: {
     backgroundColor: '#333',
     color: '#fff',
+  },
+  dropdownContainer: {
+    width: 150,
+    maxHeight: 200,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    backgroundColor: 'white',
+  },
+  trashButton: {
+    marginLeft: 10, // Aggiunge margine sinistro tra il dropdown e l'icona del cestino
   },
 });
 

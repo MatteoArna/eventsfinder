@@ -4,7 +4,7 @@ import { Card, Image, Icon, Button } from 'react-native-elements';
 import { Linking } from 'react-native';
 import openMap from 'react-native-open-maps';
 
-const Event = ({ event, darkMode }) => {
+const Event = ({ id, event, darkMode }) => {
 
   const handlePress = async () => {
     const url = event.link;
@@ -17,13 +17,6 @@ const Event = ({ event, darkMode }) => {
         console.error(`Impossibile aprire l'URL: ${url}`);
       }
     }
-  };
-
-  const [isPressed, setIsPressed] = useState(false);
-
-  const togglePress = () => {
-    setIsPressed(!isPressed);
-    event.starred = !event.starred;
   };
 
   return (
@@ -42,16 +35,6 @@ const Event = ({ event, darkMode }) => {
             alt='immagine evento'
             style={styles.eventImage}
           />
-          <View style={styles.starContainer}>
-            <TouchableOpacity onPress={togglePress}>
-              <Icon
-                style={styles.star}
-                name={isPressed ? 'star' : 'star-outline'}
-                size={40}
-                color={isPressed ? 'orange' : 'gray'}
-              />
-            </TouchableOpacity>
-          </View>
         </View>
         <View style={styles.eventDetails}>
           <Text style={[styles.eventName, darkMode && styles.darkModeText]}>
@@ -130,16 +113,6 @@ const styles = StyleSheet.create({
   },
   darkModeLink: {
     color: 'lightblue', // Dark mode link color
-  },
-  starContainer: {
-    flex: 0.2,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 10,
-  },
-  star: {
-    paddingTop: 10,
-    paddingBottom: 10,
   },
   eventButton: {
     backgroundColor: 'teal', // Button background color

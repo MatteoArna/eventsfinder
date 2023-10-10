@@ -169,7 +169,7 @@ useEffect(() => {
       >
         <Tab.Screen
           name="Events"
-          component={() => <EventsScreen events={events} darkMode={theme === darkTheme} />}
+          component={() => <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} />}
           options={{
             tabBarLabel: 'Events',
             tabBarIcon: ({ color, size }) => (
