@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Children } from 'react';
-import { Appearance, Platform } from 'react-native';
+import { Appearance } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Tab = createBottomTabNavigator();
 const pages = [
+  /*
   { 
     name: "Erasmus in Prague",
     url: "https://www.tickettailor.com/events/erasmusinprague",
@@ -33,14 +34,17 @@ const pages = [
     name: "MAD PRG",
     url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
   },
+  */
   {
     name: "Duplex",
     url: "https://www.duplex.cz/allevents",
   },
+  /*
   {
     name: "Epic, Prague",
     url: "https://www.epicprague.com/en/program",
   }
+  */
 ];
 
 const lightTheme = {
@@ -118,10 +122,11 @@ export default function App() {
       const [monthAbbreviation, day] = parts.map(part => part.toUpperCase());
       const currentYear = new Date().getFullYear();
       const currentDate = new Date();
+
       
       let eventDate = new Date(currentYear, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
-      
-      if (currentDate > eventDate) {
+      console.log(eventDate);      
+      if (currentDate > eventDate + 1) {
         // If the date has passed, set it for the next year
         eventDate = new Date(currentYear + 1, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
       }
@@ -139,6 +144,8 @@ export default function App() {
 
   async function fetchWebsiteData() {
     try {
+      const currentDate = new Date();
+      const nextWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7);
       const allEvents = [];
       var counter = 0;
       const promises = pages.map(async (page) => {
@@ -190,7 +197,6 @@ export default function App() {
             }
           });
         }
-  
       });
   
       await Promise.all(promises);

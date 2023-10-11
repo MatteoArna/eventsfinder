@@ -5,10 +5,12 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  RefreshControl
+  RefreshControl,
+  Touchable
 } from 'react-native';
 import Event from '../Components/Event';
-import { SearchBar } from 'react-native-elements';
+import { Button, SearchBar } from 'react-native-elements';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const EventScreen = ({ events, pages, darkMode }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,7 +126,13 @@ const EventScreen = ({ events, pages, darkMode }) => {
                     onRefresh={onRefresh}
                 />
             }
->
+        >
+            <View>
+                <TouchableOpacity>
+                    <Text>Test</Text>
+                </TouchableOpacity>
+            </View>
+            
         
             {eventSections}
         
