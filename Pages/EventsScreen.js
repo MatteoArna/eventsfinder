@@ -89,7 +89,7 @@ const EventScreen = ({ events, pages, darkMode }) => {
   const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
     <View key={day}>
       <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
-        {day + " (" + translate(dayEvents[0].date.getDay()) + ")"}
+        {day == new Date().getDate() + "." + (new Date().getMonth() + 1) + "." + new Date().getFullYear() ? "Today" : day + " (" + translate(dayEvents[0].date.getDay()) + ")"}
       </Text>
       {dayEvents.map((event) => (
         <Event key={event.id} event={event} darkMode={darkMode} />

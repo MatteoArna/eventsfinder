@@ -5,6 +5,7 @@ import { Linking } from 'react-native';
 import Modal from 'react-native-modal';
 import axios from 'axios';
 import cheerio from 'cheerio';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const Event = ({ id, event, darkMode }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
