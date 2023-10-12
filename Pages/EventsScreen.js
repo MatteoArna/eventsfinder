@@ -6,7 +6,8 @@ import {
   ScrollView,
   SafeAreaView,
   RefreshControl,
-  Touchable
+  Touchable,
+  Platform
 } from 'react-native';
 import Event from '../Components/Event';
 import { Button, SearchBar } from 'react-native-elements';
@@ -117,7 +118,7 @@ const EventScreen = ({ events, pages, darkMode }) => {
             onCancel={handleFilterErase}
             onChange={handleSearchInputChange}
             value={searchQuery}
-            platform='ios'
+            platform={Platform.OS === 'ios' ? 'ios' : 'android'}
       />
       </View>
         <ScrollView 
@@ -129,11 +130,6 @@ const EventScreen = ({ events, pages, darkMode }) => {
                 />
             }
         >
-            <View>
-                <TouchableOpacity>
-                    <Text>Test</Text>
-                </TouchableOpacity>
-            </View>
             
         
             {eventSections}
