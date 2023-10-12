@@ -114,6 +114,8 @@ const EventScreen = ({ events, pages, darkMode }) => {
             inputContainerStyle={darkMode ? styles.SearchBarDark : styles.SearchBar}
             placeholder="Search events..."
             onChangeText={handleSearchInputChange}
+            onCancel={handleFilterErase}
+            onChange={handleSearchInputChange}
             value={searchQuery}
             platform='ios'
       />
