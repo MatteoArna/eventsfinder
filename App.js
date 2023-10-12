@@ -13,7 +13,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Tab = createBottomTabNavigator();
 const pages = [
-  /*
   { 
     name: "Erasmus in Prague",
     url: "https://www.tickettailor.com/events/erasmusinprague",
@@ -34,17 +33,14 @@ const pages = [
     name: "MAD PRG",
     url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
   },
-  */
   {
     name: "Duplex",
     url: "https://www.duplex.cz/allevents",
   },
-  /*
   {
     name: "Epic, Prague",
     url: "https://www.epicprague.com/en/program",
   }
-  */
 ];
 
 const lightTheme = {
@@ -125,7 +121,6 @@ export default function App() {
 
       
       let eventDate = new Date(currentYear, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
-      console.log(eventDate);      
       if (currentDate > eventDate + 1) {
         // If the date has passed, set it for the next year
         eventDate = new Date(currentYear + 1, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
@@ -147,6 +142,7 @@ export default function App() {
       const currentDate = new Date();
       const nextWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7);
       const allEvents = [];
+      var duplexCounter = 0;
       var counter = 0;
       const promises = pages.map(async (page) => {
         const response = await axios.get(page.url);
@@ -157,12 +153,14 @@ export default function App() {
           eventElements.each((index, element) => {
             const $event = $(element);
             const id = counter++;
+            duplexCounter++;
             const name = $event.find('.event_title').text().split(" – ")[0];
             const sdate = $event.find('.event_date .month').text() + " " + $event.find('.event_date .date').text();
             const date = parseEventDate(sdate, page.name);
             const imageUrl = $event.find('img.img_placeholder').attr('src');
             const link = $event.find('a.event_title_link').attr('href');
-            allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: page.name });
+            if(duplexCounter > 3)
+              allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: page.name });
           });
         } else if (page.name === "Epic, Prague") {
           const eventElements = $('.program__item');
@@ -200,6 +198,7 @@ export default function App() {
       });
   
       await Promise.all(promises);
+
       
       const sortedEvents = allEvents.sort((a, b) => a.date - b.date);
       return sortedEvents;
