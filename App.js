@@ -34,13 +34,21 @@ const pages = [
     url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
   },
   {
+    name: "Warehouse Entertainment",
+    url: "https://www.tickettailor.com/events/wprgentertainment/",
+  },
+  {
     name: "Duplex",
     url: "https://www.duplex.cz/allevents",
   },
   {
     name: "Epic, Prague",
     url: "https://www.epicprague.com/en/program",
-  }
+  },
+ {
+    name: "ESN",
+    url: "https://isc.cvut.cz/calendar",
+ }
 ];
 
 const lightTheme = {
@@ -178,7 +186,44 @@ export default function App() {
             const link = "https://www.epicprague.com" + $event.find('.program__item-heading a').attr('href');
             allEvents.push({ id, name, date, location: "Epic Prague", image, soldout: "Available", link, provider: page.name });
           });
-        } else {
+        } else if(page.name == "ESN"){
+          const eventElements = $('.row .event');
+          eventElements.each((index, element) => {
+            const $element = $(element);
+            const id = counter++;
+            const name = $element.find('.name').text();
+
+            const dayOfMonth = $element.find('.day-of-month').text();
+            const month = $element.find('.month').text();
+            const monthMap = {
+              "January": 0,
+              "February": 1,
+              "March": 2,
+              "April": 3,
+              "May": 4,
+              "June": 5,
+              "July": 6,
+              "August": 7,
+              "September": 8,
+              "October": 9,
+              "November": 10,
+              "December": 11
+            };
+            const year = new Date().getFullYear();
+            const today = new Date();
+            const date = new Date(year, monthMap[month], dayOfMonth);
+            if(today > date){
+              date.setFullYear(year + 1);
+            }
+
+            const backgroundImage = $element.find('.header').attr('style').match(/url\((.*?)\)/)[1];
+            const link = $element.find('.description').find('a').last().attr('href');
+
+            if(!name.includes("CANCELLED"))
+              allEvents.push({ id, name, date, location: "-", image: backgroundImage, soldout: "Available", link, provider: page.name });
+
+          });
+        }else{
           const eventElements = $('.row.event_listing');
           eventElements.each((index, element) => {
             const $event = $(element);

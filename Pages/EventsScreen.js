@@ -6,16 +6,13 @@ import {
   ScrollView,
   SafeAreaView,
   RefreshControl,
-  Touchable,
   Platform
 } from 'react-native';
 import Event from '../Components/Event';
-import { Button, SearchBar } from 'react-native-elements';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {  SearchBar } from 'react-native-elements';
 
 const EventScreen = ({ events, pages, darkMode }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
 
   // Use useRef to get a reference to the dropdown component
@@ -25,16 +22,12 @@ const EventScreen = ({ events, pages, darkMode }) => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = events.filter(
       (event) =>
-        (event.name && event.name.toLowerCase().includes(lowerCaseQuery)) ||
-        event.provider.includes(lowerCaseQuery) ||
-        event.location.includes(lowerCaseQuery)
+        (event.name.toLowerCase().includes(lowerCaseQuery)) ||
+        (event.provider.toLowerCase().includes(lowerCaseQuery)) ||
+        (event.location.toLowerCase().includes(lowerCaseQuery))
     );
 
-    const filteredByProvider = selectedProvider
-      ? filtered.filter((event) => event.provider === selectedProvider)
-      : filtered;
-
-    setFilteredEvents(filteredByProvider);
+    setFilteredEvents(filtered);
   };
 
   const handleSearchInputChange = (query) => {
@@ -42,14 +35,8 @@ const EventScreen = ({ events, pages, darkMode }) => {
     filterEvents();
   };
 
-  const handleProviderChange = (provider) => {
-    setSelectedProvider(provider);
-    filterEvents();
-  };
-
   const handleFilterErase = () => {
     setSearchQuery('');
-    setSelectedProvider('');
     filterEvents();
     // Close the dropdown when the filter is erased
     dropdownRef.current && dropdownRef.current.hide();
@@ -116,7 +103,6 @@ const EventScreen = ({ events, pages, darkMode }) => {
             placeholder="Search events..."
             onChangeText={handleSearchInputChange}
             onCancel={handleFilterErase}
-            onChange={handleSearchInputChange}
             value={searchQuery}
             platform={Platform.OS === 'ios' ? 'ios' : 'android'}
       />

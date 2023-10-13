@@ -13,8 +13,6 @@ const Event = ({ id, event, darkMode }) => {
 
   async function fetchWebsiteData() {
     try {
-
-
       const response = await axios.get(event.link);
       const $ = cheerio.load(response.data);
       var eventData = '';
@@ -23,6 +21,8 @@ const Event = ({ id, event, darkMode }) => {
         eventData = "Not available";
       }else if(event.provider == "Epic, Prague"){
         eventData = $('.event-detail__text').text();
+      }else if(event.provider == "ESN"){
+        eventData = $('.description').text();
       }else{
         eventData = $('.event-page-description').text();
       }

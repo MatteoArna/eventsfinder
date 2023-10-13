@@ -2,7 +2,7 @@
   "expo": {
     "name": "eventsfinder",
     "slug": "eventsfinder",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -23,7 +23,8 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.matteo_arena.eventsfinder"
+      "package": "com.matteo_arena.eventsfinder",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
