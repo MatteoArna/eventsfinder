@@ -96,9 +96,9 @@ const Event = ({ id, event, darkMode }) => {
             {event.name}
           </Text>
           <TouchableOpacity onPress={() => Linking.openURL(Platform.OS == 'ios' ? 'maps://app?daddr=' + event.location : 'google.navigation:q=' + event.location)}>
-            <Text style={[styles.eventLocation, darkMode ? styles.darkModeText : null]}>{event.location}</Text>
+            <Text style={styles.eventLocation}>{event.location}</Text>
           </TouchableOpacity>
-          <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
+          <Text style={[styles.provider, darkMode && styles.darkModeText]}>
             Provider: {event.provider}
           </Text>
           <Button
@@ -147,7 +147,12 @@ const styles = StyleSheet.create({
   },
   eventLocation: {
     fontSize: 16,
-    color: 'gray',
+    color: 'rgb(73, 148, 236)',
+    marginBottom: 5,
+    fontWeight: 'bold'
+  },
+  provider: {
+    fontSize: 16,
     marginBottom: 5,
   },
   darkModeText: {
