@@ -2,9 +2,46 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Card, Image, Icon, Button } from 'react-native-elements';
 import { Linking } from 'react-native';
-import openMap from 'react-native-open-maps';
+import Modal from 'react-native-modal';
+import axios from 'axios';
+import cheerio from 'cheerio';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const Event = ({ id, event, darkMode }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [data, setData] = useState('');
+
+  async function fetchWebsiteData() {
+    try {
+      const response = await axios.get(event.link);
+      const $ = cheerio.load(response.data);
+      var eventData = '';
+      
+      if(event.provider == "Duplex"){
+        eventData = "Not available";
+      }else if(event.provider == "Epic, Prague"){
+        eventData = $('.event-detail__text').text();
+      }else if(event.provider == "ESN"){
+        eventData = $('.description').text();
+      }else{
+        eventData = $('.event-page-description').text();
+      }
+
+      setData(eventData);
+    } catch (error) {
+      console.error('Error fetching website data:', error);
+    }
+  }
+
+  const handleModalShow = () => {
+    if (!data) {
+      fetchWebsiteData();
+    }
+  };
+
+  const handleModalHide = () => {
+    setIsModalVisible(false);
+  };
 
   const handlePress = async () => {
     const url = event.link;
@@ -29,21 +66,39 @@ const Event = ({ id, event, darkMode }) => {
     >
       <View style={styles.container}>
         <View style={styles.imageContainer}>
-          <Image
-            resizeMode="cover"
-            source={{ uri: event.image }}
-            alt='immagine evento'
-            style={styles.eventImage}
-          />
+          <TouchableOpacity onPress={() => setIsModalVisible(true)}>
+            <Image
+              resizeMode="cover"
+              source={{ uri: event.image }}
+              alt='immagine evento'
+              style={styles.eventImage}
+            />
+          </TouchableOpacity>
+          <Modal
+            isVisible={isModalVisible}
+            onModalShow={handleModalShow}
+            onModalHide={handleModalHide}
+            style={styles.modal}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>{data}</Text>
+              <Button
+                title="Hide modal"
+                onPress={handleModalHide}
+                buttonStyle={styles.modalButton}
+                titleStyle={styles.modalButtonText}
+              />
+            </View>
+          </Modal>
         </View>
         <View style={styles.eventDetails}>
           <Text style={[styles.eventName, darkMode && styles.darkModeText]}>
             {event.name}
           </Text>
           <TouchableOpacity onPress={() => Linking.openURL(Platform.OS == 'ios' ? 'maps://app?daddr=' + event.location : 'google.navigation:q=' + event.location)}>
-            <Text style={[styles.eventLocation, darkMode ? styles.darkModeText : null]}>{event.location}</Text>
+            <Text style={styles.eventLocation}>{event.location}</Text>
           </TouchableOpacity>
-          <Text style={[styles.eventLocation, darkMode && styles.darkModeText]}>
+          <Text style={[styles.provider, darkMode && styles.darkModeText]}>
             Provider: {event.provider}
           </Text>
           <Button
@@ -69,7 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'seashell',
   },
   darkModeCard: {
-    backgroundColor: '#333', // Dark mode background color
+    backgroundColor: '#333',
   },
   container: {
     flexDirection: 'row',
@@ -94,46 +149,47 @@ const styles = StyleSheet.create({
   },
   eventLocation: {
     fontSize: 16,
-    color: 'gray',
+    color: 'rgb(73, 148, 236)',
     marginBottom: 5,
+    fontWeight: 'bold'
   },
-  eventPrice: {
+  provider: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  eventLink: {
-    fontSize: 16,
-    color: 'blue',
     marginBottom: 5,
   },
   darkModeText: {
-    color: '#fff', // Dark mode text color
-  },
-  darkModeLink: {
-    color: 'lightblue', // Dark mode link color
+    color: '#fff',
   },
   eventButton: {
-    backgroundColor: 'teal', // Button background color
+    backgroundColor: 'teal',
     borderRadius: 5,
     marginTop: 10,
   },
   darkModeButton: {
-    backgroundColor: 'teal', // Dark mode button background color
+    backgroundColor: 'teal',
   },
   eventButtonText: {
-    color: 'white', // Button text color
+    color: 'white',
   },
-  eventLocation: {
+  modal: {
+    marginHorizontal: 10
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalText: {
     fontSize: 16,
-    color: 'gray', // Default text color
-    marginBottom: 5,
+    marginBottom: 20,
   },
-  darkModeText: {
-    color: '#fff', // Dark mode text color
-  },  
-  darkModeLocation: {
-    color: 'lightgray', // Dark mode event location text color
+  modalButton: {
+    backgroundColor: 'teal',
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  modalButtonText: {
+    color: 'white',
   },
 });
 

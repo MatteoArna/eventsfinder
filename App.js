@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Children } from 'react';
-import { Appearance, Platform } from 'react-native';
+import { Appearance } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -34,13 +34,21 @@ const pages = [
     url: "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
   },
   {
+    name: "Warehouse Entertainment",
+    url: "https://www.tickettailor.com/events/wprgentertainment/",
+  },
+  {
     name: "Duplex",
     url: "https://www.duplex.cz/allevents",
   },
   {
     name: "Epic, Prague",
     url: "https://www.epicprague.com/en/program",
-  }
+  },
+ {
+    name: "ESN",
+    url: "https://isc.cvut.cz/calendar",
+ }
 ];
 
 const lightTheme = {
@@ -114,21 +122,19 @@ export default function App() {
         JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
         JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12
       };
-      const monthAbbreviation = parts[0].toUpperCase();
-      const day = parseInt(parts[1], 10);
+      
+      const [monthAbbreviation, day] = parts.map(part => part.toUpperCase());
       const currentYear = new Date().getFullYear();
-      const nextYear = currentYear + 1;
-      const month = monthMap[monthAbbreviation];
       const currentDate = new Date();
-      const eventDate = new Date(currentYear, month - 1, day);
-      if (currentDate > eventDate) {
+
+      
+      let eventDate = new Date(currentYear, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
+      if (currentDate > eventDate + 1) {
         // If the date has passed, set it for the next year
-        eventDate.setFullYear(nextYear);
+        eventDate = new Date(currentYear + 1, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
       }
+      
       return eventDate;
-
-    }else if(provider == "Epic, Prague"){
-
     }else{
       const day = parseInt(parts[1], 10);
       const month = monthMap[parts[2]];
@@ -140,85 +146,113 @@ export default function App() {
   }
 
   async function fetchWebsiteData() {
-    var counter = 0;
     try {
-      const allEvents = []; // Create a separate array for all events
-      for(var i = 0; i < pages.length; i++){
-        const response = await axios.get(pages[i].url);
+      const currentDate = new Date();
+      const nextWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7);
+      const allEvents = [];
+      var duplexCounter = 0;
+      var counter = 0;
+      const promises = pages.map(async (page) => {
+        const response = await axios.get(page.url);
         const $ = cheerio.load(response.data);
-        if(pages[i].name == "Duplex"){
+
+        if (page.name === "Duplex") {
           const eventElements = $('.row .eventRow');
           eventElements.each((index, element) => {
             const $event = $(element);
             const id = counter++;
+            duplexCounter++;
             const name = $event.find('.event_title').text().split(" – ")[0];
-            
-            const month = $event.find('.event_date .month').text(); // Extract the month (e.g., Oct)
-            const year =  $event.find('.event_date .date').text(); 
-            const sdate = month + " " + year;
-            const date = parseEventDate(sdate, pages[i].name);
+            const sdate = $event.find('.event_date .month').text() + " " + $event.find('.event_date .date').text();
+            const date = parseEventDate(sdate, page.name);
             const imageUrl = $event.find('img.img_placeholder').attr('src');
             const link = $event.find('a.event_title_link').attr('href');
-
-            allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: pages[i].name });
+            if(duplexCounter > 3)
+              allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: page.name });
           });
-
-        }else if(pages[i].name == "Epic, Prague"){
+        } else if (page.name === "Epic, Prague") {
           const eventElements = $('.program__item');
           eventElements.each((index, element) => {
             const $event = $(element);
             const id = counter++;
-            // Extract the name
             const name = $event.find('.program__item-heading a').text().trim();
-            if(name == null || name == ""){
-              return;
-            }
-
-            // Extract the date
+            if (!name) return;
             const sdate = $event.find('time.program__item-datetime a').text().trim();
             const [day, month, year] = sdate.split('/');
-            const date = new Date(year.substring(0,4), month - 1, day);
-
-            var image = $event.find('.program__item-image.m-grey').css('background-image');
-            image = image.substring(5, image.length - 1);
-            image = image.replace(/\\/g, "");
+            const date = new Date(year.substring(0, 4), month - 1, day);
+            let image = $event.find('.program__item-image.m-grey').css('background-image');
+            image = image.substring(5, image.length - 1).replace(/\\/g, "");
             image = "https://www.epicprague.com" + image;
-
-            link = "https://www.epicprague.com" + $event.find('.program__item-heading a').attr('href');
-            allEvents.push({ id, name, date, location: "Epic Prague", image, soldout: "Available", link, provider: pages[i].name });
+            const link = "https://www.epicprague.com" + $event.find('.program__item-heading a').attr('href');
+            allEvents.push({ id, name, date, location: "Epic Prague", image, soldout: "Available", link, provider: page.name });
           });
-          
+        } else if(page.name == "ESN"){
+          const eventElements = $('.row .event');
+          eventElements.each((index, element) => {
+            const $element = $(element);
+            const id = counter++;
+            const name = $element.find('.name').text();
+
+            const dayOfMonth = $element.find('.day-of-month').text();
+            const month = $element.find('.month').text();
+            const monthMap = {
+              "January": 0,
+              "February": 1,
+              "March": 2,
+              "April": 3,
+              "May": 4,
+              "June": 5,
+              "July": 6,
+              "August": 7,
+              "September": 8,
+              "October": 9,
+              "November": 10,
+              "December": 11
+            };
+            const year = new Date().getFullYear();
+            const today = new Date();
+            const date = new Date(year, monthMap[month], dayOfMonth);
+            if(today > date){
+              date.setFullYear(year + 1);
+            }
+
+            const backgroundImage = $element.find('.header').attr('style').match(/url\((.*?)\)/)[1];
+            const link = $element.find('.description').find('a').last().attr('href');
+
+            if(!name.includes("CANCELLED"))
+              allEvents.push({ id, name, date, location: "-", image: backgroundImage, soldout: "Available", link, provider: page.name });
+
+          });
         }else{
           const eventElements = $('.row.event_listing');
           eventElements.each((index, element) => {
             const $event = $(element);
             const id = counter++;
             const name = $event.find('.name').text();
-            const date = parseEventDate($event.find('.date_and_time').text(), pages[i].name);
+            const date = parseEventDate($event.find('.date_and_time').text(), page.name);
             const location = $event.find('.venue').text();
             const image = $event.find('.event_image img').attr('src');
             const soldout = $event.find('.event_details .event_cta').text();
-            const provider = pages[i].name;
-
+            const provider = page.name;
             const link = "https://www.tickettailor.com" + $event.find('a').attr('href');
-            if(name != "ERASMUS CARD - OFFICIAL") {
+            if (name !== "ERASMUS CARD - OFFICIAL") {
               allEvents.push({ id, name, date, location, image, soldout, link, provider });
             }
           });
         }
-      }
-
-
-      const sortedEvents = [...allEvents].sort((a, b) => {
-        return a.date - b.date;
       });
+  
+      await Promise.all(promises);
 
-      return sortedEvents; // Return all collected events
+      
+      const sortedEvents = allEvents.sort((a, b) => a.date - b.date);
+      return sortedEvents;
     } catch (error) {
-      console.error('Errore durante il web scraping:', error);
+      console.error('Error during web scraping:', error);
       throw error;
     }
   }
+  
 useEffect(() => {
     fetchWebsiteData()
       .then((result) => {

@@ -1,37 +1,56 @@
-import React, { useState, useRef } from 'react'; // Import useRef
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   SafeAreaView,
-  RefreshControl
+  Button,
+  FlatList,
+  RefreshControl,
+  Platform,
 } from 'react-native';
 import Event from '../Components/Event';
 import { SearchBar } from 'react-native-elements';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const EventScreen = ({ events, pages, darkMode }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
-  // Use useRef to get a reference to the dropdown component
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
   const dropdownRef = useRef();
 
   const filterEvents = () => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = events.filter(
       (event) =>
-        (event.name && event.name.toLowerCase().includes(lowerCaseQuery)) ||
-        event.provider.includes(lowerCaseQuery) ||
-        event.location.includes(lowerCaseQuery)
+        event.name.toLowerCase().includes(lowerCaseQuery) ||
+        event.provider.toLowerCase().includes(lowerCaseQuery) ||
+        event.location.toLowerCase().includes(lowerCaseQuery)
     );
 
-    const filteredByProvider = selectedProvider
-      ? filtered.filter((event) => event.provider === selectedProvider)
-      : filtered;
+    setFilteredEvents(filtered);
+  };
 
-    setFilteredEvents(filteredByProvider);
+  const handleConfirm = (date) => {
+    const filtered = events.filter(
+      (event) =>
+        event.date != null &&
+        event.date.getDate() === date.getDate() &&
+        event.date.getMonth() === date.getMonth() &&
+        event.date.getFullYear() === date.getFullYear()
+    );
+
+    setFilteredEvents(filtered);
+    hideDatePicker();
   };
 
   const handleSearchInputChange = (query) => {
@@ -39,16 +58,10 @@ const EventScreen = ({ events, pages, darkMode }) => {
     filterEvents();
   };
 
-  const handleProviderChange = (provider) => {
-    setSelectedProvider(provider);
-    filterEvents();
-  };
-
   const handleFilterErase = () => {
     setSearchQuery('');
-    setSelectedProvider('');
+    setFilteredEvents(events);
     filterEvents();
-    // Close the dropdown when the filter is erased
     dropdownRef.current && dropdownRef.current.hide();
   };
 
@@ -70,23 +83,25 @@ const EventScreen = ({ events, pages, darkMode }) => {
     eventsByDay[formattedDate].push(event);
   });
 
-  function translate(a){
+  function translate(a) {
     const dayMap = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday"
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
     ];
     return dayMap[a];
-}
+  }
 
   const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
     <View key={day}>
       <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
-        {day + " (" + translate(dayEvents[0].date.getDay()) + ")"}
+        {day == `${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()}`
+          ? 'Today'
+          : `${day} (${translate(dayEvents[0].date.getDay())})`}
       </Text>
       {dayEvents.map((event) => (
         <Event key={event.id} event={event} darkMode={darkMode} />
@@ -107,32 +122,49 @@ const EventScreen = ({ events, pages, darkMode }) => {
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
       <View style={styles.filterContainer}>
         <SearchBar
-            style={darkMode ? styles.SearchBarDark : styles.SearchBar}
-            containerStyle={darkMode ? styles.containerDark : styles.SearchBar}
-            inputContainerStyle={darkMode ? styles.SearchBarDark : styles.SearchBar}
-            placeholder="Search events..."
-            onChangeText={handleSearchInputChange}
-            value={searchQuery}
-            platform='ios'
-      />
+          style={darkMode ? styles.SearchBarDark : styles.SearchBar}
+          containerStyle={darkMode ? styles.containerDark : styles.SearchBar}
+          inputContainerStyle={darkMode ? styles.SearchBarDark : styles.SearchBar}
+          placeholder="Search events..."
+          onChangeText={handleSearchInputChange}
+          onCancel={handleFilterErase}
+          value={searchQuery}
+          platform={Platform.OS === 'ios' ? 'ios' : 'android'}
+        />
+        <View style={styles.rowContainer}>
+          <Button
+            title="Select date"
+            onPress={showDatePicker}
+            style={styles.datePickerButton}
+          />
+          <Button
+            title="Show all"
+            onPress={handleFilterErase}
+            style={styles.datePickerButton}
+          />
+        </View>
       </View>
-        <ScrollView 
-            style={styles.eventList}
-            refreshControl={
-                <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                />
-            }
->
-        
-            {eventSections}
-        
-        </ScrollView>
+
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
+
+      {eventSections.length > 0 ? (
+        <FlatList
+          data={eventSections}
+          renderItem={({ item }) => item}
+          keyExtractor={(item, index) => index.toString()}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        />
+      ) : (
+        <Text style={styles.noEventsText}>No events found</Text>
+      )}
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -175,27 +207,27 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'center', // Centra verticalmente gli elementi nella riga
-    marginVertical: 10, // Aggiunge margine sopra e sotto alla riga
-  },
-  dropdownText: {
-    fontSize: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    alignItems: 'center',
+    marginVertical: 10,
   },
   SearchBarDark: {
     backgroundColor: '#333',
     color: '#fff',
   },
-  dropdownContainer: {
-    width: 150,
-    maxHeight: 200,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    backgroundColor: 'white',
-  },
   trashButton: {
-    marginLeft: 10, // Aggiunge margine sinistro tra il dropdown e l'icona del cestino
+    marginLeft: 10,
+  },
+  datePickerButton: {
+    margin: 10,
+    padding: 10,
+    backgroundColor: '#ccc',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  noEventsText: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 
