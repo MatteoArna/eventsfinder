@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  Button,
   FlatList,
   RefreshControl,
   Platform,
@@ -12,11 +11,13 @@ import {
 import Event from '../Components/Event';
 import { SearchBar } from 'react-native-elements';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const EventScreen = ({ events, pages, darkMode }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [date, setDate] = useState(null);
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -41,6 +42,7 @@ const EventScreen = ({ events, pages, darkMode }) => {
   };
 
   const handleConfirm = (date) => {
+    setDate(date);
     const filtered = events.filter(
       (event) =>
         event.date != null &&
@@ -59,6 +61,7 @@ const EventScreen = ({ events, pages, darkMode }) => {
   };
 
   const handleFilterErase = () => {
+    setDate(null);
     setSearchQuery('');
     setFilteredEvents(events);
     filterEvents();
@@ -122,27 +125,33 @@ const EventScreen = ({ events, pages, darkMode }) => {
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
       <View style={styles.filterContainer}>
         <SearchBar
-          style={darkMode ? styles.SearchBarDark : styles.SearchBar}
-          containerStyle={darkMode ? styles.containerDark : styles.SearchBar}
-          inputContainerStyle={darkMode ? styles.SearchBarDark : styles.SearchBar}
+          style={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
+          containerStyle={[styles.SearchBar, darkMode && styles.SearchBarDark]}
+          inputContainerStyle={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
           placeholder="Search events..."
           onChangeText={handleSearchInputChange}
           onCancel={handleFilterErase}
+          onClear={handleFilterErase}
           value={searchQuery}
           platform={Platform.OS === 'ios' ? 'ios' : 'android'}
         />
-        <View style={styles.rowContainer}>
-          <Button
-            title="Select date"
-            onPress={showDatePicker}
-            style={styles.datePickerButton}
+        {date == null ? (
+          <Icon
+            name="calendar"
+            size={30}
+            color={darkMode ? '#fff' : '#000'}
+            style={{ alignSelf: 'center' }} // adjust the style as per your requirement
+            onPress={showDatePicker} // handle date picker here
           />
-          <Button
-            title="Show all"
-            onPress={handleFilterErase}
-            style={styles.datePickerButton}
+        ) : (
+          <Icon
+            name="trash"
+            size={30}
+            color={darkMode ? '#fff' : '#000'}
+            style={{ alignSelf: 'center' }} // adjust the style as per your requirement
+            onPress={handleFilterErase} // handle date picker here
           />
-        </View>
+        )}
       </View>
 
       <DateTimePickerModal
@@ -192,6 +201,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     marginHorizontal: 10,
+    flexDirection: 'row',
   },
   dropdownContainer: {
     width: 150,
@@ -199,6 +209,10 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderWidth: 1,
     backgroundColor: 'white',
+  },
+  SearchBarDarkContainer:{
+    backgroundColor: '#333',
+    color: '#fff',
   },
   dropdownText: {
     fontSize: 18,
@@ -211,11 +225,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   SearchBarDark: {
-    backgroundColor: '#333',
+    backgroundColor: '#000',
     color: '#fff',
   },
-  trashButton: {
-    marginLeft: 10,
+  SearchBar: {
+    width: '88%',
   },
   datePickerButton: {
     margin: 10,
