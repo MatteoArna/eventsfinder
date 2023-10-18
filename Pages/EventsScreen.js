@@ -88,6 +88,18 @@ const EventScreen = ({ events, pages, darkMode }) => {
     eventsByDay[formattedDate].push(event);
   });
 
+  function removePassedEvents() {
+    const today = new Date();
+    const filtered = events.filter(
+      (event) =>
+        event.date != null &&
+        event.date.getDate() >= today.getDate() &&
+        event.date.getMonth() >= today.getMonth() &&
+        event.date.getFullYear() >= today.getFullYear()
+    );
+  }
+
+
   function translate(a) {
     const dayMap = [
       'Sunday',
@@ -118,6 +130,7 @@ const EventScreen = ({ events, pages, darkMode }) => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    removePassedEvents();
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
