@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -57,8 +57,10 @@ const EventScreen = ({ events, pages, darkMode }) => {
 
   const handleSearchInputChange = (query) => {
     setSearchQuery(query);
-    filterEvents();
   };
+  useEffect(() => {
+    filterEvents();
+  }, [searchQuery]);
 
   const handleFilterErase = () => {
     setDate(null);
@@ -168,6 +170,9 @@ const EventScreen = ({ events, pages, darkMode }) => {
           keyExtractor={(item, index) => index.toString()}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
+      ) : 
+      (searchQuery == "" && date == null) ? (
+        <Text style={styles.noEventsText}>Loading...</Text>
       ) : (
         <Text style={styles.noEventsText}>No events found</Text>
       )}

@@ -4,8 +4,8 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "cheerio": "^1.0.0-rc.12",
     "date-fns": "^2.30.0",
     "expo": "~49.0.13",
+    "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "lodash": "^4.17.21",
     "react": "18.2.0",
@@ -32,6 +33,7 @@
     "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-modal-dropdown": "^1.0.2",
     "react-native-open-maps": "^0.4.3",
+    "react-native-paper": "^5.11.0",
     "react-native-reanimated": "^3.5.4",
     "react-native-safe-area-context": "^4.7.2",
     "react-native-screens": "^3.25.0",
