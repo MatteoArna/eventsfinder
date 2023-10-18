@@ -172,9 +172,9 @@ const EventScreen = ({ events, pages, darkMode }) => {
         />
       ) : 
       (searchQuery == "" && date == null) ? (
-        <Text style={styles.noEventsText}>Loading...</Text>
+        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>Loading...</Text>
       ) : (
-        <Text style={styles.noEventsText}>No events found</Text>
+        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>No events found</Text>
       )}
     </SafeAreaView>
   );
@@ -247,6 +247,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     marginTop: 20,
+  },
+  noEventsTextDark: {
+    color: '#fff',
   },
 });
 
