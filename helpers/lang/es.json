@@ -1,0 +1,23 @@
+{
+    "today": "Hoy",
+    "searchEvents": "Buscar eventos...",
+    "events": "Eventos",
+    "provider": "Proveedor",
+    "viewEvent": "Ver evento",
+    "settings": "Configuración",
+    "general": "General",
+    "darkMode": "Modo oscuro",
+    "noEventsFound": "No se encontraron eventos",
+    "loading": "Cargando...",
+    "cancel": "Cancelar",
+    "hideModal": "Ocultar modal",
+    "notAvailable": "No disponible",
+    
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado",
+    "sunday": "Domingo"
+}

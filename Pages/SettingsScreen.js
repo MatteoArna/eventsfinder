@@ -2,18 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet, Switch, ScrollView } from 'react-native';
 import { Divider } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import i18n from '../helpers/i18n';
 
 const SettingsScreen = ({ darkMode, toggleDarkMode }) => {
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
         <View style={styles.headerContainer}>
-            <Text style={[styles.header, darkMode && styles.headerDark]}>Settings</Text>
+            <Text style={[styles.header, darkMode && styles.headerDark]}>{i18n.t('settings')}</Text>
         </View>
         <ScrollView style={[styles.container, darkMode && styles.containerDark]}>
-            <Text style={[styles.subTitle, darkMode && styles.subTitleDark]}>General</Text>
+            <Text style={[styles.subTitle, darkMode && styles.subTitleDark]}>{i18n.t('general')}</Text>
             <Divider style={{ backgroundColor: '#ccc' }} />
             <View style={styles.toggleContainer}>
-                <Text style={[styles.toggleLabel, darkMode && styles.toggleLabelDark]}>Dark Mode</Text>
+                <Text style={[styles.toggleLabel, darkMode && styles.toggleLabelDark]}>{i18n.t('darkMode')}</Text>
                 <Switch
                 value={darkMode}
                 onValueChange={toggleDarkMode}

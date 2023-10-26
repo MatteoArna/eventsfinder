@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import 'react-native-gesture-handler';
+import i18n from './helpers/i18n';
 
 import EventsScreen from './Pages/EventsScreen';
 import SettingsScreen from './Pages/SettingsScreen';

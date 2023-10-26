@@ -6,6 +6,7 @@ import Modal from 'react-native-modal';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import { ScrollView } from 'react-native-gesture-handler';
+import i18n from '../helpers/i18n';
 
 const Event = ({ id, event, darkMode }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -18,7 +19,7 @@ const Event = ({ id, event, darkMode }) => {
       var eventData = '';
       
       if(event.provider == "Duplex"){
-        eventData = "Not available";
+        eventData = i18n.t('notAvailable');
       }else if(event.provider == "Epic, Prague"){
         eventData = $('.event-detail__text').text();
       }else if(event.provider == "ESN"){
@@ -83,7 +84,7 @@ const Event = ({ id, event, darkMode }) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>{data}</Text>
               <Button
-                title="Hide modal"
+                title={i18n.t('hideModal')}
                 onPress={handleModalHide}
                 buttonStyle={styles.modalButton}
                 titleStyle={styles.modalButtonText}
@@ -102,7 +103,7 @@ const Event = ({ id, event, darkMode }) => {
             Provider: {event.provider}
           </Text>
           <Button
-            title="View Event"
+            title={i18n.t('viewEvent')}
             onPress={handlePress}
             buttonStyle={[styles.eventButton, darkMode && styles.darkModeButton]}
             titleStyle={styles.eventButtonText}

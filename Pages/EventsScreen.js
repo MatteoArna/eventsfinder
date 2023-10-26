@@ -12,6 +12,7 @@ import Event from '../Components/Event';
 import { SearchBar } from 'react-native-elements';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import i18n from '../helpers/i18n';
 
 const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,13 +103,13 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
 
   function translate(a) {
     const dayMap = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
+      i18n.t('sunday'),
+      i18n.t('monday'),
+      i18n.t('tuesday'),
+      i18n.t('wednesday'),
+      i18n.t('thursday'),
+      i18n.t('friday'),
+      i18n.t('saturday'),
     ];
     return dayMap[a];
   }
@@ -117,7 +118,7 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
     <View key={day}>
       <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
         {day == `${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()}`
-          ? 'Today'
+          ? i18n.t('today')
           : `${day} (${translate(dayEvents[0].date.getDay())})`}
       </Text>
       {dayEvents.map((event) => (
@@ -143,7 +144,7 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
           style={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
           containerStyle={[styles.SearchBar, darkMode && styles.SearchBarDark]}
           inputContainerStyle={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
-          placeholder="Search events..."
+          placeholder={i18n.t('searchEvents')}
           onChangeText={handleSearchInputChange}
           onCancel={handleFilterErase}
           onClear={handleFilterErase}
@@ -174,6 +175,8 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
+        //Set language
+        locale={i18n.locale}
       />
 
       {eventSections.length > 0 ? (
@@ -186,9 +189,9 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
         />
       ) : 
       (searchQuery == "" && date == null) ? (
-        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>Loading...</Text>
+        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>{i18n.t('loading')}</Text>
       ) : (
-        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>No events found</Text>
+        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>{i18n.t('noEventsFound')}</Text>
       )}
     </SafeAreaView>
   );
