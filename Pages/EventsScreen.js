@@ -13,7 +13,7 @@ import { SearchBar } from 'react-native-elements';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const EventScreen = ({ events, pages, darkMode }) => {
+const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -178,6 +178,7 @@ const EventScreen = ({ events, pages, darkMode }) => {
 
       {eventSections.length > 0 ? (
         <FlatList
+          ref={scrollRef}
           data={eventSections}
           renderItem={({ item }) => item}
           keyExtractor={(item, index) => index.toString()}

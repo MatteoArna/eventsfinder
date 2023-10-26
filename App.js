@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Appearance } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Appearance, Touchable, TouchableOpacity } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -70,6 +70,7 @@ const darkTheme = {
 };
 
 export default function App() {
+  const scrollRef = useRef(null);
   const [events, setEvents] = useState([]);
   const colorScheme = Appearance.getColorScheme(); // Get the current color scheme (light or dark)
   const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
@@ -126,7 +127,6 @@ export default function App() {
       const [monthAbbreviation, day] = parts.map(part => part.toUpperCase());
       const currentYear = new Date().getFullYear();
       const currentDate = new Date();
-
       
       let eventDate = new Date(currentYear, monthMap[monthAbbreviation] - 1, parseInt(day, 10));
       if (currentDate > eventDate + 1) {
@@ -167,7 +167,7 @@ export default function App() {
             const date = parseEventDate(sdate, page.name);
             const imageUrl = $event.find('img.img_placeholder').attr('src');
             const link = $event.find('a.event_title_link').attr('href');
-            if(duplexCounter > 3)
+            if(duplexCounter >= 3)
               allEvents.push({ id, name, date, location: "Duplex", image: imageUrl, soldout: "Available", link, provider: page.name });
           });
         } else if (page.name === "Epic, Prague") {
@@ -265,8 +265,8 @@ useEffect(() => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer theme={theme}>
-        <Tab.Navigator
+    <NavigationContainer theme={theme}>
+      <Tab.Navigator
         screenOptions={{
           style: {
             backgroundColor: theme.colors.background,
@@ -274,35 +274,39 @@ useEffect(() => {
           labelStyle: {
             color: theme.colors.text,
           },
-        }
-      }
-        >
-          <Tab.Screen
-            name="Events"
-            component={() => <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} />}
-            options={{
-              tabBarLabel: 'Events',
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="calendar" color={color} size={size} />
-              ),
-              headerShown: false,
-            }}
-          />
-          <Tab.Screen
-            name="Settings"
-            component={() => (
-              <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />
-            )}
-            options={{
-              tabBarLabel: 'Settings',
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
-              ),
-              headerShown: false,
-            }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </GestureHandlerRootView>
-  );
+        }}
+      >
+        <Tab.Screen
+          name="Events"
+          component={() => (
+            <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} scrollRef={scrollRef} />
+          )}
+          options={{
+            tabBarLabel: 'Events',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="calendar" color={color} size={size} />
+            ),
+            headerShown: false,
+            tabBarPress: () => {
+              if (flatListRef.current) {
+                flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+              }
+            },
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={() => <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />}
+          options={{
+            tabBarLabel: 'Settings',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
+            ),
+            headerShown: false,
+          }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+  </GestureHandlerRootView>
+);
 }
