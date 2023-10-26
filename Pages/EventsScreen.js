@@ -143,10 +143,9 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
         <SearchBar
           style={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
           containerStyle={[styles.SearchBar, darkMode && styles.SearchBarDark]}
-          inputContainerStyle={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
+          inputContainerStyle={[, darkMode && styles.SearchBarDarkContainer]}
           placeholder={i18n.t('searchEvents')}
           onChangeText={handleSearchInputChange}
-          onCancel={handleFilterErase}
           onClear={handleFilterErase}
           value={searchQuery}
           platform={Platform.OS === 'ios' ? 'ios' : 'android'}

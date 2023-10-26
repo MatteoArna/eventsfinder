@@ -283,7 +283,7 @@ useEffect(() => {
             <EventsScreen events={events} pages={pages} darkMode={theme === darkTheme} scrollRef={scrollRef} />
           )}
           options={{
-            tabBarLabel: 'Events',
+            tabBarLabel: i18n.t('events'),
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="calendar" color={color} size={size} />
             ),
@@ -299,7 +299,7 @@ useEffect(() => {
           name="Settings"
           component={() => <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />}
           options={{
-            tabBarLabel: 'Settings',
+            tabBarLabel: i18n.t('settings'),
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
             ),
