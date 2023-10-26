@@ -4,12 +4,14 @@ import en from './lang/en.json';
 import it from './lang/it.json';
 import es from './lang/es.json';
 import de from './lang/de.json';
+import fr from './lang/fr.json';
+import cz from './lang/cz.json';
 
 // Imposta la lingua di default
 i18n.defaultLocale = 'en';
 
 // Definisci un array di codici lingua supportati
-const supportedLanguages = ['it', 'es', 'de'];
+const supportedLanguages = ['it', 'es', 'de', 'fr', 'cz'];
 
 // Ottieni la lingua corrente del telefono
 const phoneLanguage = Localization.locale;
@@ -34,6 +36,8 @@ i18n.translations = {
   it,
   es,
   de,
+  fr,
+  cz
   // Aggiungi altre lingue qui se necessario
 };
 

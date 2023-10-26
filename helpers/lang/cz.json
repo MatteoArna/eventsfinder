@@ -1,0 +1,23 @@
+{
+    "today": "Dnes",
+    "searchEvents": "Vyhledat události...",
+    "events": "Události",
+    "provider": "Poskytovatel",
+    "viewEvent": "Zobrazit událost",
+    "settings": "Nastavení",
+    "general": "Obecné",
+    "darkMode": "Tmavý režim",
+    "noEventsFound": "Nebyly nalezeny žádné události",
+    "loading": "Načítání...",
+    "cancel": "Zrušit",
+    "hideModal": "Skrýt modální okno",
+    "notAvailable": "Není k dispozici",
+    
+    "monday": "Pondělí",
+    "tuesday": "Úterý",
+    "wednesday": "Středa",
+    "thursday": "Čtvrtek",
+    "friday": "Pátek",
+    "saturday": "Sobota",
+    "sunday": "Neděle"
+}
