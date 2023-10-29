@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Card, Image, Icon, Button } from 'react-native-elements';
+import { Card, Image, Button } from 'react-native-elements';
 import { Linking } from 'react-native';
 import Modal from 'react-native-modal';
 import axios from 'axios';
 import cheerio from 'cheerio';
-import { ScrollView } from 'react-native-gesture-handler';
-import i18n from '../helpers/i18n';
+
+// APIs
+import i18n from '../api/i18n/i18n.js';
 
 const Event = ({ id, event, darkMode }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -28,7 +29,7 @@ const Event = ({ id, event, darkMode }) => {
         eventData = $('.event-page-description').text();
       }
 
-      setData(eventData);
+      setData(eventData.trim());
     } catch (error) {
       console.error('Error fetching website data:', error);
     }
@@ -61,7 +62,6 @@ const Event = ({ id, event, darkMode }) => {
     <Card
       containerStyle={[
         styles.eventCard,
-        event.soldout.includes("Sold out") && styles.soldOutCard,
         darkMode && styles.darkModeCard,
       ]}
     >
@@ -71,7 +71,7 @@ const Event = ({ id, event, darkMode }) => {
             <Image
               resizeMode="cover"
               source={{ uri: event.image }}
-              alt='immagine evento'
+              alt='event image'
               style={styles.eventImage}
             />
           </TouchableOpacity>
@@ -79,14 +79,15 @@ const Event = ({ id, event, darkMode }) => {
             isVisible={isModalVisible}
             onModalShow={handleModalShow}
             onModalHide={handleModalHide}
-            style={styles.modal}
+            onBackdropPress={handleModalHide}
+            style={[styles.modal, darkMode && styles.darkModal]}
           >
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>{data}</Text>
+            <View style={[styles.modalContent, darkMode && styles.darkModalContent]}>
+              <Text style={[styles.modalText, darkMode && styles.darkModalText]}>{data}</Text>
               <Button
                 title={i18n.t('hideModal')}
                 onPress={handleModalHide}
-                buttonStyle={styles.modalButton}
+                buttonStyle={[styles.modalButton, darkMode && styles.darkModalButton]}
                 titleStyle={styles.modalButtonText}
               />
             </View>
@@ -171,16 +172,18 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   modal: {
-    marginHorizontal: 10
+    margin: 10,
+    paddingHorizontal: 10,
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     padding: 20,
     borderRadius: 10,
   },
   modalText: {
     fontSize: 16,
     marginBottom: 20,
+    color: '#fff',
   },
   modalButton: {
     backgroundColor: 'teal',
@@ -189,6 +192,22 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     color: 'white',
+  },
+  darkModal: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  darkModalContent: {
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    padding: 20,
+    borderRadius: 10,
+  },
+  darkModalText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  darkModalButton: {
+    backgroundColor: 'teal',
   },
 });
 

@@ -1,6 +1,8 @@
 import * as Localization from 'expo-localization';
 import i18n from 'i18n-js';
-import en from './lang/en.json';
+
+// LANGUAGE PACKS
+import en from './lang/en.json'
 import it from './lang/it.json';
 import es from './lang/es.json';
 import de from './lang/de.json';

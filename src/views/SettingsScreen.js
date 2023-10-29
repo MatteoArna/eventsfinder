@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, Switch, ScrollView } from 'react-native';
 import { Divider } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import i18n from '../helpers/i18n';
+
+// APIs
+import i18n from '../api/i18n/i18n.js';
 
 const SettingsScreen = ({ darkMode, toggleDarkMode }) => {
   return (

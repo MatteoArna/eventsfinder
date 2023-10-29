@@ -1,20 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  FlatList,
-  RefreshControl,
-  Platform,
-} from 'react-native';
-import Event from '../Components/Event';
-import { SearchBar } from 'react-native-elements';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, RefreshControl, Platform } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import i18n from '../helpers/i18n';
 
-const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
+// APIs
+import i18n from '../api/i18n/i18n.js';
+
+// PERSONAL COMPONENTS
+import Event from '../components/Event';
+import CustomSearchBar from '../components/CustomSearchBar';
+
+const EventsScreen = ({ events, pages, darkMode, scrollRef }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -138,32 +134,30 @@ const EventScreen = ({ events, pages, darkMode, scrollRef }) => {
   }, []);
 
   return (
-    <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
+    <SafeAreaView style={[styles.container, darkMode && styles.containerDark, Platform.OS == "android" && styles.androidSearchBar ]}>
       <View style={styles.filterContainer}>
-        <SearchBar
-          style={darkMode ? styles.SearchBarDarkContainer : styles.SearchBar}
-          containerStyle={[styles.SearchBar, darkMode && styles.SearchBarDark]}
-          inputContainerStyle={[, darkMode && styles.SearchBarDarkContainer]}
-          placeholder={i18n.t('searchEvents')}
-          onChangeText={handleSearchInputChange}
-          onClear={handleFilterErase}
-          value={searchQuery}
-          platform={Platform.OS === 'ios' ? 'ios' : 'android'}
-        />
+        <View style={[styles.searchBarContainer, darkMode && styles.searchBarContainerDark]}>
+          <CustomSearchBar
+            darkMode={darkMode}
+            value={searchQuery}
+            onChangeText={handleSearchInputChange}
+            onClear={handleFilterErase}
+          />
+        </View>
         {date == null ? (
           <Icon
             name="calendar"
-            size={30}
+            size={25}
             color={darkMode ? '#fff' : '#000'}
-            style={{ alignSelf: 'center' }} // adjust the style as per your requirement
+            style={{ alignSelf: 'center', marginRight: 10 }} // adjust the style as per your requirement
             onPress={showDatePicker} // handle date picker here
           />
         ) : (
           <Icon
             name="trash"
-            size={30}
+            size={25}
             color={darkMode ? '#fff' : '#000'}
-            style={{ alignSelf: 'center' }} // adjust the style as per your requirement
+            style={{ alignSelf: 'center', marginRight: 10 }} // adjust the style as per your requirement
             onPress={handleFilterErase} // handle date picker here
           />
         )}
@@ -223,6 +217,7 @@ const styles = StyleSheet.create({
   filterContainer: {
     marginHorizontal: 10,
     flexDirection: 'row',
+    alignItems: 'center', // Align items vertically
   },
   dropdownContainer: {
     width: 150,
@@ -250,7 +245,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   SearchBar: {
-    width: '88%',
+    flex: 1, // Take up all available space
+    paddingVertical: 10, // Increase vertical padding
   },
   datePickerButton: {
     margin: 10,
@@ -267,6 +263,22 @@ const styles = StyleSheet.create({
   noEventsTextDark: {
     color: '#fff',
   },
+  searchBarContainer: {
+    flex: 1, // Take up all available space
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 13,
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    marginRight: 20,
+  },
+  searchBarContainerDark: {
+    backgroundColor: '#333',
+  },
+  androidSearchBar: {
+    marginTop: 25,
+  },
 });
 
-export default EventScreen;
+export default EventsScreen;
