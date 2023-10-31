@@ -10,7 +10,8 @@ export class DataFetcher {
     try {
       this.pages = websites.map(website => ({
         name: website.name,
-        url: website.url
+        url: website.url,
+        coupon: website.coupon
       }));
     } catch (error) {
       console.error('Error loading pages. The format is not correct.');
@@ -52,7 +53,7 @@ export class DataFetcher {
                   image: imageUrl,
                   soldout: 'Available',
                   link,
-                  provider: page.name
+                  provider: page.name,
                 });
               }
             });
@@ -140,7 +141,7 @@ export class DataFetcher {
               const provider = page.name;
               const link = 'https://www.tickettailor.com' + $event.find('a').attr('href');
               if (name !== 'ERASMUS CARD - OFFICIAL') {
-                allEvents.push({ id, name, date, location, image, soldout, link, provider });
+                allEvents.push({ id, name, date, location, image, soldout, link, provider, coupon: page.coupon });
               }
             });
           }
@@ -151,7 +152,6 @@ export class DataFetcher {
 
       await Promise.all(fetchPromises);
       console.log('All events fetched');
-      console.log(allEvents);
 
       const sortedEvents = allEvents.sort((a, b) => a.date - b.date);
       return sortedEvents;

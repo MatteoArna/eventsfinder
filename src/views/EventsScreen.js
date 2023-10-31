@@ -10,7 +10,7 @@ import i18n from '../api/i18n/i18n.js';
 import Event from '../components/Event';
 import CustomSearchBar from '../components/CustomSearchBar';
 
-const EventsScreen = ({ events, pages, darkMode, scrollRef }) => {
+const EventsScreen = ({ events, darkMode, scrollRef }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(events);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);

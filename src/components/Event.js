@@ -92,6 +92,9 @@ const Event = ({ id, event, darkMode }) => {
               />
             </View>
           </Modal>
+          <Text style={[styles.coupon, darkMode && styles.darkModeText]}>
+            Coupon: {event.coupon ? event.coupon : i18n.t('notAvailable')}
+          </Text>
         </View>
         <View style={styles.eventDetails}>
           <Text style={[styles.eventName, darkMode && styles.darkModeText]}>
@@ -209,6 +212,12 @@ const styles = StyleSheet.create({
   darkModalButton: {
     backgroundColor: 'teal',
   },
+  coupon: {
+    top: 10,
+    padding: 5,
+    fontWeight: 'bold',
+    borderRadius: 10,
+  }
 });
 
 export default Event;

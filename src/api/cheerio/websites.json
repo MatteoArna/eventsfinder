@@ -1,38 +1,47 @@
 [
   {
     "name": "Erasmus in Prague",
-    "url": "https://www.tickettailor.com/events/erasmusinprague"
+    "url": "https://www.tickettailor.com/events/erasmusinprague",
+    "coupon": ""
   },
   {
     "name": "Oh My Prague",
-    "url": "https://www.tickettailor.com/events/ohmypragueparties"
+    "url": "https://www.tickettailor.com/events/ohmypragueparties",
+    "coupon": ""
   },
   {
     "name": "Oh My Prague - Trips",
-    "url": "https://www.tickettailor.com/events/ohmyprague?fbclid=PAAaYkX_r77zY2LTaneP63d4J5uU5Kwdr0gwKRkYt6VW90cg_UEIQBIIO3shI_aem_AWYNHQD9VHFatYLDZlCzjfsfapccULlEOsgT5iQM-tFyarDRrqdszFGQuzOKGifxgh4"
+    "url": "https://www.tickettailor.com/events/ohmyprague?fbclid=PAAaYkX_r77zY2LTaneP63d4J5uU5Kwdr0gwKRkYt6VW90cg_UEIQBIIO3shI_aem_AWYNHQD9VHFatYLDZlCzjfsfapccULlEOsgT5iQM-tFyarDRrqdszFGQuzOKGifxgh4",
+    "coupon": ""
   },
   {
     "name": "Erasmusland",
-    "url": "https://www.tickettailor.com/events/wprgentertainment?fbclid=PAAaYR29VELVHVGUIREwoYbVb55eMhKHMwFuHyk_1ESi-YTRhwFgDPOatkK-U_aem_AQ3sZr8zbJg36ujbeNwRCkijCflGizs53rbbebN2-w7_hJ5QavaN1ezXt-LCNAnd2qI"
+    "url": "https://www.tickettailor.com/events/wprgentertainment?fbclid=PAAaYR29VELVHVGUIREwoYbVb55eMhKHMwFuHyk_1ESi-YTRhwFgDPOatkK-U_aem_AQ3sZr8zbJg36ujbeNwRCkijCflGizs53rbbebN2-w7_hJ5QavaN1ezXt-LCNAnd2qI",
+    "coupon": ""
   },
   {
     "name": "MAD PRG",
-    "url": "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as"
+    "url": "https://www.tickettailor.com/events/madprg?fbclid=PAAaaPHxZdrH21ObFXdnm0zco4eWtd0eMwBtpNABibRabXW6cpwZqsUeJmIZ0_aem_AaLO0labdYPmgErcxs5jvY5HQODYWsl2fRajzEB1hockmyYLNT2oQw3dLlhUCfKY7as",
+    "coupon": ""
   },
   {
     "name": "Warehouse Entertainment",
-    "url": "https://www.tickettailor.com/events/wprgentertainment/"
+    "url": "https://www.tickettailor.com/events/wprgentertainment/",
+    "coupon": "DALAN"
   },
   {
     "name": "Duplex",
-    "url": "https://www.duplex.cz/allevents"
+    "url": "https://www.duplex.cz/allevents",
+    "coupon": ""
   },
   {
     "name": "Epic, Prague",
-    "url": "https://www.epicprague.com/en/program"
+    "url": "https://www.epicprague.com/en/program",
+    "coupon": ""
   },
   {
     "name": "ESN",
-    "url": "https://isc.cvut.cz/calendar"
+    "url": "https://isc.cvut.cz/calendar",
+    "coupon": ""
   }
 ]
