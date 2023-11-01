@@ -2,7 +2,7 @@
   "expo": {
     "name": "eventsfinder",
     "slug": "eventsfinder",
-    "version": "1.0.6",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -24,15 +24,18 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.matteo_arena.eventsfinder",
-      "versionCode": 4
+      "versionCode": 6
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/assets/favicon.png"
     },
     "extra": {
       "eas": {
         "projectId": "3e6aa583-83f1-496f-88fe-456bb3ccc770"
       }
-    }
+    },
+    "plugins": [
+      "expo-localization"
+    ]
   }
 }

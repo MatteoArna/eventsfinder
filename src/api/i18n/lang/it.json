@@ -1,23 +1,22 @@
 {
+    "events": "Eventi",
+    "settings": "Impostazioni",
+
+
     "today": "Oggi",
     "searchEvents": "Cerca eventi...",
-    "events": "Eventi",
-    "provider": "Fornitore",
-    "viewEvent": "Vedi evento",
-    "settings": "Impostazioni",
-    "general": "Generale",
-    "darkMode": "Modalità scura",
     "noEventsFound": "Nessun evento trovato",
     "loading": "Caricamento in corso...",
-    "cancel": "Annulla",
-    "hideModal": "Chiudi",
     "notAvailable": "Non disponibile",
+    "suggestedEvents": "Eventi suggeriti",
+    "allEvents": "Tutti gli eventi",
     
-    "monday": "Lunedì",
-    "tuesday": "Martedì",
-    "wednesday": "Mercoledì",
-    "thursday": "Giovedì",
-    "friday": "Venerdì",
-    "saturday": "Sabato",
-    "sunday": "Domenica"
+    "location": "Luogo",
+    "date": "Data",
+    "provider": "Fornitore",
+    "coupon": "Codice sconto",
+    "buyTickets": "Acquista biglietti",
+
+    "general": "Generale",
+    "darkMode": "Modalità scura"
 }

@@ -108,7 +108,9 @@ export class DataFetcher {
               const year = new Date().getFullYear();
               const today = new Date();
               const date = new Date(year, monthMap[month], dayOfMonth);
-              if (today > date) {
+              //remove a day from today
+              today.setDate(today.getDate() - 1);
+              if (today > date) { 
                 date.setFullYear(year + 1);
               }
 
@@ -140,7 +142,9 @@ export class DataFetcher {
               const soldout = $event.find('.event_details .event_cta').text();
               const provider = page.name;
               const link = 'https://www.tickettailor.com' + $event.find('a').attr('href');
-              if (name !== 'ERASMUS CARD - OFFICIAL') {
+
+              const today = new Date();
+              if (name !== 'ERASMUS CARD - OFFICIAL' && date > today.getDate() - 1) {
                 allEvents.push({ id, name, date, location, image, soldout, link, provider, coupon: page.coupon });
               }
             });

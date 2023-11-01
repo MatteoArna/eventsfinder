@@ -1,192 +1,116 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, RefreshControl, Platform } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View,SafeAreaView, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native';
+import _ from 'lodash';
 
-// APIs
-import i18n from '../api/i18n/i18n.js';
-
-// PERSONAL COMPONENTS
-import Event from '../components/Event';
+import HorizontalSection from '../components/HorizontalSection';
 import CustomSearchBar from '../components/CustomSearchBar';
+import VerticalSection from '../components/VerticalSection';
 
-const EventsScreen = ({ events, darkMode, scrollRef }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState(events);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [date, setDate] = useState(null);
+import i18n from '../api/i18n/i18n';
+import { DataFetcher } from '../api/cheerio/DataFetcher';
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const dropdownRef = useRef();
-
-  const filterEvents = () => {
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = events.filter(
-      (event) =>
-        event.name.toLowerCase().includes(lowerCaseQuery) ||
-        event.provider.toLowerCase().includes(lowerCaseQuery) ||
-        event.location.toLowerCase().includes(lowerCaseQuery)
-    );
-
-    setFilteredEvents(filtered);
-  };
-
-  const handleConfirm = (date) => {
-    setDate(date);
-    const filtered = events.filter(
-      (event) =>
-        event.date != null &&
-        event.date.getDate() === date.getDate() &&
-        event.date.getMonth() === date.getMonth() &&
-        event.date.getFullYear() === date.getFullYear()
-    );
-
-    setFilteredEvents(filtered);
-    hideDatePicker();
-  };
-
-  const handleSearchInputChange = (query) => {
-    setSearchQuery(query);
-  };
-  useEffect(() => {
-    filterEvents();
-  }, [searchQuery]);
-
-  const handleFilterErase = () => {
-    setDate(null);
-    setSearchQuery('');
-    setFilteredEvents(events);
-    filterEvents();
-    dropdownRef.current && dropdownRef.current.hide();
-  };
-
-  const eventsByDay = {};
-
-  filteredEvents.forEach((event) => {
-    const eventDate = event.date;
-
-    if (!eventDate) {
-      return;
-    }
-
-    const formattedDate = `${eventDate.getDate()}.${eventDate.getMonth() + 1}.${eventDate.getFullYear()}`;
-
-    if (!eventsByDay[formattedDate]) {
-      eventsByDay[formattedDate] = [];
-    }
-
-    eventsByDay[formattedDate].push(event);
-  });
-
-  function removePassedEvents() {
-    const today = new Date();
-    const filtered = events.filter(
-      (event) =>
-        event.date != null &&
-        event.date.getDate() >= today.getDate() &&
-        event.date.getMonth() >= today.getMonth() &&
-        event.date.getFullYear() >= today.getFullYear()
-    );
-  }
-
-
-  function translate(a) {
-    const dayMap = [
-      i18n.t('sunday'),
-      i18n.t('monday'),
-      i18n.t('tuesday'),
-      i18n.t('wednesday'),
-      i18n.t('thursday'),
-      i18n.t('friday'),
-      i18n.t('saturday'),
-    ];
-    return dayMap[a];
-  }
-
-  const eventSections = Object.entries(eventsByDay).map(([day, dayEvents]) => (
-    <View key={day}>
-      <Text style={[styles.dayHeader, darkMode && styles.dayHeaderDark]}>
-        {day == `${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()}`
-          ? i18n.t('today')
-          : `${day} (${translate(dayEvents[0].date.getDay())})`}
-      </Text>
-      {dayEvents.map((event) => (
-        <Event key={event.id} event={event} darkMode={darkMode} />
-      ))}
-    </View>
-  ));
-
+const EventsScreen = ({ events, darkMode, scrollRef, onEventUpdate }) => {
+  const [todayEvents, setTodayEvents] = useState([]);
+  const [suggestedEvents, setSuggestedEvents] = useState([]);
+  const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [dateEvents, setDateEvents] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const onRefresh = React.useCallback(() => {
+  const fetchData = async () => {
+    try {
+      const eventData = await DataFetcher.fetch();
+      onEventUpdate(eventData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onRefresh = () => {
     setRefreshing(true);
-    removePassedEvents();
     setTimeout(() => {
       setRefreshing(false);
+      fetchData();
     }, 2000);
-  }, []);
+  };
+
+  const debouncedSearch = _.debounce(async (text) => {
+    setIsSearching(true);
+    const filteredEvents = events.filter((event) => {
+      const eventTitle = event.name.toLowerCase();
+      const eventLocation = event.location.toLowerCase();
+      const searchTextLower = text.toLowerCase();
+      return eventTitle.includes(searchTextLower) || eventLocation.includes(searchTextLower);
+    });
+    setIsSearching(false);
+    setDateEvents(filteredEvents);
+  }, 300);
+
+  const onSearch = (text) => {
+    setSearchText(text);
+    debouncedSearch(text);
+  };
+
+  const onClear = (text) => {
+    setSearchText('');
+  };
+
+  useEffect(() => {
+    const today = new Date();
+    const filteredTodayEvents = events.filter((event) => {
+      const eventDate = event.date;
+      if (!eventDate) return false;
+      return eventDate.toDateString() === today.toDateString();
+    });
+    setTodayEvents(filteredTodayEvents);
+
+    const filteredSuggestedEvents = events.filter((event) => {
+      return event.provider === 'Warehouse Entertainment';
+    });
+    setSuggestedEvents(filteredSuggestedEvents);
+  }, [events]);
 
   return (
-    <SafeAreaView style={[styles.container, darkMode && styles.containerDark, Platform.OS == "android" && styles.androidSearchBar ]}>
-      <View style={styles.filterContainer}>
-        <View style={[styles.searchBarContainer, darkMode && styles.searchBarContainerDark]}>
-          <CustomSearchBar
-            darkMode={darkMode}
-            value={searchQuery}
-            onChangeText={handleSearchInputChange}
-            onClear={handleFilterErase}
-          />
-        </View>
-        {date == null ? (
-          <Icon
-            name="calendar"
-            size={25}
-            color={darkMode ? '#fff' : '#000'}
-            style={{ alignSelf: 'center', marginRight: 10 }} // adjust the style as per your requirement
-            onPress={showDatePicker} // handle date picker here
-          />
-        ) : (
-          <Icon
-            name="trash"
-            size={25}
-            color={darkMode ? '#fff' : '#000'}
-            style={{ alignSelf: 'center', marginRight: 10 }} // adjust the style as per your requirement
-            onPress={handleFilterErase} // handle date picker here
-          />
-        )}
-      </View>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        //Set language
-        locale={i18n.locale}
+    <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
+  <CustomSearchBar
+    darkMode={darkMode}
+    value={searchText}
+    onChangeText={onSearch}
+    onClear={onClear}
+  />
+  <ScrollView
+    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+  >
+    {searchText ? (
+      <VerticalSection
+        darkMode={darkMode}
+        title={i18n.t('allEvents')}
+        events={dateEvents}
       />
-
-      {eventSections.length > 0 ? (
-        <FlatList
-          ref={scrollRef}
-          data={eventSections}
-          renderItem={({ item }) => item}
-          keyExtractor={(item, index) => index.toString()}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    ) : (
+      <View>
+        <HorizontalSection
+          darkMode={darkMode}
+          title={i18n.t('today')}
+          events={todayEvents}
         />
-      ) : 
-      (searchQuery == "" && date == null) ? (
-        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>{i18n.t('loading')}</Text>
-      ) : (
-        <Text style={[styles.noEventsText, darkMode && styles.noEventsTextDark]}>{i18n.t('noEventsFound')}</Text>
-      )}
-    </SafeAreaView>
+        <HorizontalSection
+          darkMode={darkMode}
+          title={i18n.t('suggestedEvents')}
+          events={suggestedEvents}
+        />
+        <VerticalSection
+          darkMode={darkMode}
+          title={i18n.t('allEvents')}
+          events={events}
+        />
+      </View>
+    )}
+    
+  </ScrollView>
+  {isSearching && <ActivityIndicator size="small" color="#0000ff" />}
+</SafeAreaView>
+
   );
 };
 
@@ -197,87 +121,6 @@ const styles = StyleSheet.create({
   },
   containerDark: {
     backgroundColor: '#000',
-  },
-  dayHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#f2f2f2',
-  },
-  dayHeaderDark: {
-    backgroundColor: '#333',
-    color: '#fff',
-  },
-  eventList: {
-    flex: 1,
-    width: '100%',
-  },
-  filterContainer: {
-    marginHorizontal: 10,
-    flexDirection: 'row',
-    alignItems: 'center', // Align items vertically
-  },
-  dropdownContainer: {
-    width: 150,
-    maxHeight: 200,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    backgroundColor: 'white',
-  },
-  SearchBarDarkContainer:{
-    backgroundColor: '#333',
-    color: '#fff',
-  },
-  dropdownText: {
-    fontSize: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  SearchBarDark: {
-    backgroundColor: '#000',
-    color: '#fff',
-  },
-  SearchBar: {
-    flex: 1, // Take up all available space
-    paddingVertical: 10, // Increase vertical padding
-  },
-  datePickerButton: {
-    margin: 10,
-    padding: 10,
-    backgroundColor: '#ccc',
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  noEventsText: {
-    fontSize: 20,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  noEventsTextDark: {
-    color: '#fff',
-  },
-  searchBarContainer: {
-    flex: 1, // Take up all available space
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 13,
-    marginVertical: 10,
-    paddingHorizontal: 10,
-    marginRight: 20,
-  },
-  searchBarContainerDark: {
-    backgroundColor: '#333',
-  },
-  androidSearchBar: {
-    marginTop: 25,
   },
 });
 

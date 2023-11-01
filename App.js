@@ -37,6 +37,11 @@ export default function App() {
   const [events, setEvents] = useState([]);
   const colorScheme = Appearance.getColorScheme(); // Get the current color scheme (light or dark)
   const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
+  
+  const handleEventUpdate = (events) => {
+    // Do something with the event data here
+    setEvents(events);
+  };
 
   // Function to toggle between light and dark mode
   const toggleDarkMode = () => {
@@ -70,7 +75,7 @@ useEffect(() => {
         <Tab.Screen
           name="Events"
           component={() => (
-            <EventsScreen events={events} darkMode={theme === darkTheme} scrollRef={scrollRef} />
+            <EventsScreen onEventUpdate={handleEventUpdate} events={events} darkMode={theme === darkTheme} scrollRef={scrollRef} />
           )}
           options={{
             tabBarLabel: i18n.t('events'),

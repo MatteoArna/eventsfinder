@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Keyboard } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Import the Icon component for the clear button
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 import i18n from '../api/i18n/i18n';
 
 const CustomSearchBar = ({ value, onChangeText, onClear, darkMode }) => {
   const handleClearPress = () => {
-    Keyboard.dismiss(); // Hide the keyboard when the clear icon is pressed
-    onClear(); // Call the onClear function from the parent component
-    setIsFocused(false)
+    Keyboard.dismiss();
+    onClear();
+    setIsFocused(false);
   };
 
   const [isFocused, setIsFocused] = useState(false);
@@ -18,7 +17,7 @@ const CustomSearchBar = ({ value, onChangeText, onClear, darkMode }) => {
   };
 
   const handleBlur = () => {
-    setIsFocused(false); 
+    setIsFocused(false);
   };
 
   return (
@@ -36,7 +35,7 @@ const CustomSearchBar = ({ value, onChangeText, onClear, darkMode }) => {
           name="times-circle"
           size={20}
           color={darkMode ? '#fff' : '#000'}
-          onPress={handleClearPress} // Call the handleClearPress function on press
+          onPress={handleClearPress}
           style={styles.clearIcon}
         />
       )}
@@ -53,6 +52,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 6,
     paddingHorizontal: 6,
+    marginRight: 10,
+    marginLeft: 5,
   },
   searchBarContainerDark: {
     backgroundColor: '#333',

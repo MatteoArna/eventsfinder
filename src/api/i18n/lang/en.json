@@ -1,23 +1,19 @@
 {
+    "events": "Events",
+    "settings": "Settings",
     "today": "Today",
     "searchEvents": "Search events...",
-    "events": "Events",
-    "provider": "Provider",
-    "viewEvent": "View Event",
-    "settings": "Settings",
-    "general": "General",
-    "darkMode": "Dark Mode",
     "noEventsFound": "No events found",
     "loading": "Loading...",
-    "cancel": "Cancel",
-    "hideModal": "Hide Modal",
-    "notAvailable": "Not Available",
-    
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "sunday": "Sunday"
-}
+    "notAvailable": "Not available",
+    "suggestedEvents": "Suggested Events",
+    "allEvents": "All Events",
+    "location": "Location",
+    "date": "Date",
+    "provider": "Provider",
+    "coupon": "Coupon Code",
+    "buyTickets": "Buy Tickets",
+    "general": "General",
+    "darkMode": "Dark Mode"
+  }
+  
