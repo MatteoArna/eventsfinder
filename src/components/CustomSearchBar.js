@@ -3,14 +3,25 @@ import { View, TextInput, StyleSheet, Keyboard } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import i18n from '../api/i18n/i18n';
 
-const CustomSearchBar = ({ value, onChangeText, onClear, darkMode }) => {
+const CustomSearchBar = ({ onClear, onSearch, darkMode }) => {
   const handleClearPress = () => {
     Keyboard.dismiss();
     onClear();
     setIsFocused(false);
+    setValue('');
+  };
+
+  const handleSearchPress = () => {
+    Keyboard.dismiss();
+    onSearch(value);
+  };
+
+  const updateQuery = (text) => {
+    setValue(text);
   };
 
   const [isFocused, setIsFocused] = useState(false);
+  const [value, setValue] = useState('');
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -26,23 +37,33 @@ const CustomSearchBar = ({ value, onChangeText, onClear, darkMode }) => {
         style={[styles.searchInput, darkMode && styles.searchInputDark]}
         placeholder={i18n.t('searchEvents')}
         value={value}
-        onChangeText={onChangeText}
+        onChangeText={updateQuery}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        returnKeyType='search'
+        onSubmitEditing={handleSearchPress}
       />
-      {isFocused && (
+      {!value ? (
+        <Icon
+          name="search"
+          size={20}
+          color={darkMode ? '#fff' : '#000'}
+          onPress={handleSearchPress}
+          style={styles.searchIcon}
+        />
+      ) : (
         <Icon
           name="times-circle"
           size={20}
           color={darkMode ? '#fff' : '#000'}
           onPress={handleClearPress}
           style={styles.clearIcon}
+          setIsFocused={false}
         />
       )}
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   searchBarContainer: {
@@ -68,6 +89,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   clearIcon: {
+    padding: 10,
+  },
+  searchIcon: {
     padding: 10,
   },
 });

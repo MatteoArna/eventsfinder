@@ -9,7 +9,7 @@ import VerticalSection from '../components/VerticalSection';
 import i18n from '../api/i18n/i18n';
 import { DataFetcher } from '../api/cheerio/DataFetcher';
 
-const EventsScreen = ({ events, darkMode, scrollRef, onEventUpdate }) => {
+const EventsScreen = ({ events, darkMode, onEventUpdate }) => {
   const [todayEvents, setTodayEvents] = useState([]);
   const [suggestedEvents, setSuggestedEvents] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -74,8 +74,7 @@ const EventsScreen = ({ events, darkMode, scrollRef, onEventUpdate }) => {
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
   <CustomSearchBar
     darkMode={darkMode}
-    value={searchText}
-    onChangeText={onSearch}
+    onSearch={onSearch}
     onClear={onClear}
   />
   <ScrollView
