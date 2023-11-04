@@ -17,7 +17,6 @@ const Event = ({ event, darkMode }) => {
           containerStyle={[
             styles.eventCard,
             darkMode && styles.darkModeCard,
-            { backgroundColor: 'transparent', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.8, shadowRadius: 2 },
           ]}
         >
           <Image
@@ -33,6 +32,7 @@ const Event = ({ event, darkMode }) => {
         </Card>
       </TouchableOpacity>
       <EventDetail event={event} darkMode={darkMode} isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} />
+
     </View>
   );
 };
@@ -44,9 +44,13 @@ const styles = StyleSheet.create({
   eventCard: {
     overflow: 'hidden',
     borderWidth: 0,
+    borderRadius: 10,
+    backgroundColor: '#ddd',
   },
   darkModeCard: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#000',
+    borderColor: '#000',
+    borderRadius: 10,
   },
   eventImage: {
     width: 180,

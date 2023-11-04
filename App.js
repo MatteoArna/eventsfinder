@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Appearance, Touchable, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage for storing the language preference
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,7 +8,6 @@ import 'react-native-gesture-handler';
 
 import EventsScreen from './src/views/EventsScreen';
 import SettingsScreen from './src/views/SettingsScreen';
-
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DataFetcher } from './src/api/cheerio/DataFetcher';
 import i18n from './src/api/i18n/i18n';
@@ -33,6 +33,7 @@ const darkTheme = {
 };
 
 export default function App() {
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // Set the default language here
   const [events, setEvents] = useState([]);
   const colorScheme = Appearance.getColorScheme(); // Get the current color scheme (light or dark)
   const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
@@ -40,6 +41,16 @@ export default function App() {
   const handleEventUpdate = (events) => {
     // Do something with the event data here
     setEvents(events);
+  };
+
+  const handleLanguageChange = async (language) => {
+    try {
+      await AsyncStorage.setItem('appLanguage', language); // Store the selected language in local storage
+      i18n.locale = language; // Set the language for the i18n instance
+      setSelectedLanguage(language);
+    } catch (error) {
+      console.error('Error setting language: ', error);
+    }
   };
 
   // Function to toggle between light and dark mode
@@ -56,6 +67,20 @@ useEffect(() => {
       .catch((error) => {
         console.error(error);
       });
+  }, []);
+  useEffect(() => {
+    const getAppLanguage = async () => {
+      try {
+        const language = await AsyncStorage.getItem('appLanguage'); // Get the stored language from local storage
+        if (language) {
+          i18n.locale = language; // Set the language for the i18n instance
+          setSelectedLanguage(language);
+        }
+      } catch (error) {
+        console.error('Error getting language: ', error);
+      }
+    };
+    getAppLanguage();
   }, []);
 
   return (
@@ -91,7 +116,7 @@ useEffect(() => {
         />
         <Tab.Screen
           name="Settings"
-          component={() => <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} />}
+          component={() => <SettingsScreen darkMode={theme === darkTheme} toggleDarkMode={toggleDarkMode} selectedLanguage={selectedLanguage} onChangeLanguage={handleLanguageChange} />}
           options={{
             tabBarLabel: i18n.t('settings'),
             tabBarIcon: ({ color, size }) => (

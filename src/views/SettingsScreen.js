@@ -5,8 +5,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // APIs
 import i18n from '../api/i18n/i18n.js';
+import LanguageDropdown from '../components/LanguageDropDown.js';
 
-const SettingsScreen = ({ darkMode, toggleDarkMode }) => {
+const SettingsScreen = ({ darkMode, toggleDarkMode, selectedLanguage, onChangeLanguage }) => {
+
+  const languages = [
+    { label: 'Český', value: 'cz' },
+    { label: 'Deutsch', value: 'de' },
+    { label: 'English', value: 'en' },
+    { label: 'Español', value: 'es' },
+    { label: 'Français', value: 'fr' },
+    { label: 'Italiano', value: 'it' },
+  ];
+
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.containerDark]}>
         <View style={styles.headerContainer}>
@@ -14,7 +25,7 @@ const SettingsScreen = ({ darkMode, toggleDarkMode }) => {
         </View>
         <ScrollView style={[styles.container, darkMode && styles.containerDark]}>
             <Text style={[styles.subTitle, darkMode && styles.subTitleDark]}>{i18n.t('general')}</Text>
-            <Divider style={{ backgroundColor: '#ccc' }} />
+            <Divider style={{ backgroundColor: '#ccc', marginTop: 5 }} />
             <View style={styles.toggleContainer}>
                 <Text style={[styles.toggleLabel, darkMode && styles.toggleLabelDark]}>{i18n.t('darkMode')}</Text>
                 <Switch
@@ -23,6 +34,12 @@ const SettingsScreen = ({ darkMode, toggleDarkMode }) => {
                 style={styles.switch}
                 />
             </View>
+            <LanguageDropdown
+              selectedLanguage={selectedLanguage}
+              languages={languages}
+              onChangeLanguage={onChangeLanguage}
+              darkMode={darkMode}
+            />
             {/* Add more settings components here */}
         </ScrollView>
     </SafeAreaView>
@@ -86,6 +103,10 @@ const styles = StyleSheet.create({
     },
   switch: {
     marginRight: 10,
+  },
+  dropdownContainer: {
+    marginHorizontal: 16,
+    marginVertical: 10,
   },
 });
 
